@@ -15,13 +15,17 @@ jobs:
       - name: Check browser scripts
         run: |
           node --check app.js
+          node --check migration-client.js
           node --check engine-v2.js
           node --check profile-client.js
           node --check plan-import-client.js
+          node --check insights-client.js
+          node --check analysis-client.js
           node --check strava-client.js
           node --check sw.js
       - name: Check serverless functions
         run: |
+          node --check api/health.js
           node --check api/_strava.js
           node --check api/strava/connect.js
           node --check api/strava/callback.js
