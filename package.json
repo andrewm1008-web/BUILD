@@ -1,7 +1,17 @@
 {
   "name": "build-marathon",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "description": "BUILD interprets a marathon plan against completed training.",
-  "engines": {"node": ">=20"}
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "start": "node dev-server.cjs",
+    "test:browser": "node tests/browser.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
 }

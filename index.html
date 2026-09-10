@@ -9,22 +9,29 @@
   <meta name="apple-mobile-web-app-title" content="BUILD" />
   <meta name="description" content="BUILD interprets your marathon plan and completed training so you know whether the build is moving toward race day." />
   <title>BUILD — Marathon Progress</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="extras.css" />
 </head>
 <body>
   <div id="app" class="app-shell"></div>
+  <div id="notice" role="status" aria-live="polite"></div>
+  <input id="backupFileInput" type="file" accept="application/json,.json" hidden />
   <input id="planFileInput" type="file" accept="application/json,.json" hidden />
   <input id="planCsvFileInput" type="file" accept="text/csv,.csv" hidden />
   <input id="activityFileInput" type="file" accept="text/csv,.csv" hidden />
+  <script src="calendar.js"></script>
+  <script src="data.js"></script>
   <script src="app.js"></script>
   <script src="migration-client.js"></script>
   <script src="engine-v2.js"></script>
   <script src="profile-client.js"></script>
   <script src="plan-import-client.js"></script>
+  <script src="workflow-client.js"></script>
   <script src="insights-client.js"></script>
-  <script src="analysis-client.js"></script>
+
   <script src="strava-client.js"></script>
 </body>
 </html>

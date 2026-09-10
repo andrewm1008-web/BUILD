@@ -1,1 +1,1 @@
-module.exports=async(req,res)=>{res.statusCode=200;res.setHeader('Content-Type','application/json');res.end(JSON.stringify({ok:true,app:'BUILD',version:'0.4.1'}))};
+module.exports=async(req,res)=>{res.statusCode=200;res.setHeader('Cache-Control','no-store');res.setHeader('Content-Type','application/json');res.end(JSON.stringify({ok:true,app:'BUILD',version:'0.5.0',stravaConfigured:!!(process.env.STRAVA_CLIENT_ID&&process.env.STRAVA_CLIENT_SECRET&&process.env.BUILD_SESSION_SECRET?.length>=32)}))};
