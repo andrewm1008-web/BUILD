@@ -1,0 +1,7 @@
+{
+  "name": "build-marathon",
+  "version": "0.4.0",
+  "private": true,
+  "description": "BUILD interprets a marathon plan against completed training.",
+  "engines": {"node": ">=20"}
+}
