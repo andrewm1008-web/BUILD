@@ -4,6 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#0B1F33" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="BUILD" />
+  <meta name="description" content="BUILD interprets your marathon plan and completed training so you know whether the build is moving toward race day." />
   <title>BUILD — Marathon Progress</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="styles.css" />
@@ -11,6 +15,7 @@
 <body>
   <div id="app" class="app-shell"></div>
   <input id="planFileInput" type="file" accept="application/json,.json" hidden />
+  <input id="activityFileInput" type="file" accept="text/csv,.csv" hidden />
   <script src="app.js"></script>
 </body>
 </html>
