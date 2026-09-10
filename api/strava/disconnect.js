@@ -1,2 +1,7 @@
-const {clearSession}=require('../_strava');
-module.exports=async(req,res)=>{clearSession(res);res.statusCode=302;res.setHeader('Location','/?strava=disconnected');res.end()};
+const {clearSession,origin}=require('../_strava');
+module.exports=async(req,res)=>{
+  res.setHeader('Cache-Control','no-store');
+  if(req.method!=='POST'){res.statusCode=405;res.setHeader('Allow','POST');return res.end()}
+  if(req.headers.origin&&req.headers.origin!==origin(req)){res.statusCode=403;return res.end()}
+  clearSession(res);res.statusCode=204;res.end();
+};

@@ -1,5 +1,5 @@
 (()=>{
-  const pace=secPerKm=>{if(!Number.isFinite(secPerKm)||secPerKm<=0)return'—';const m=Math.floor(secPerKm/60),s=Math.round(secPerKm%60);return `${m}:${String(s).padStart(2,'0')}/km`};
+  const pace=secPerKm=>{if(!Number.isFinite(secPerKm)||secPerKm<=0)return'—';const total=Math.round(secPerKm),m=Math.floor(total/60),s=total%60;return `${m}:${String(s).padStart(2,'0')}/km`};
   function inject(){
     const block=document.querySelector('.panel .actual-block');
     if(!block||document.querySelector('.panel .planned-actual'))return;

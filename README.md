@@ -1,65 +1,81 @@
-# BUILD v0.4
+# BUILD v0.5.0
 
-BUILD is a mobile-first marathon build intelligence app.
+BUILD is a mobile-first marathon plan companion. Bring an existing plan, match completed runs, and review how well each session delivered its purpose.
 
-> Garmin records the run. Strava stores and shares the run. BUILD interprets what the run means for the marathon build.
+## Working app flows
 
-## Product position
-BUILD does not generate a marathon plan and it does not record GPS activities. The runner brings the plan they trust. BUILD matches completed training to that plan, weights sessions by marathon relevance, and turns execution into Build Progress, Forecast, Goal Confidence and simple coaching decisions.
+- Guided onboarding with CSV or JSON plan import, plus a clearly labelled example build.
+- Plan import validation and a preview before replacing the current plan. Invalid files leave the current build untouched.
+- Today, Plan, Progress, Activity and Settings screens in cream, navy and racing green.
+- Calendar-aware weeks and Sunday matching, with manual week selection for undated plans.
+- Activity CSV import with explicit distance units, a preview, non-running activity filtering and duplicate detection.
+- Manual run entry and optional distance, time, effort and notes in a session review.
+- Suggested matches and a full session selector. Matching opens a review; it does not award an automatic score.
+- Explicit review saving, editable assessment history and assessment removal to correct a match.
+- Contribution-weighted progress with priority for long runs, marathon-specific work, intervals, then threshold and supporting sessions.
+- Forecast suppression until there is sufficient evidence. Forecast describes plan execution, not a predicted finish time or probability of a marathon goal.
+- Local persistence, validated JSON backup download and restore, and an offline PWA shell with install icons.
+- Strava OAuth and activity sync server routes, including pagination, token refresh, disconnect and non-cacheable responses. Live controls appear only when the backend reports it is configured.
 
-## What works now
-- Mobile-first Today, Plan, Progress, Activity and Settings screens
-- Guided onboarding around one race goal
-- Full 12-week example marathon build
-- Session impact model: long run and marathon-specific work carry more influence than easy/supporting runs
-- Tap-only post-session assessment: Nailed it / Mostly / Modified / Missed
-- Contribution-weighted Build Progress
-- Key-session execution score
-- Build Forecast with signal suppression until there is enough evidence
-- Goal Confidence based on data coverage
-- Recent-form and weekly-execution trends
-- Coach-style insight that prioritises the next decision instead of guilt/completion streaks
-- Activity Inbox
-- Strava CSV import from a Strava export
-- Proposed activity-to-plan matching using distance, date proximity and activity semantics
-- Local browser persistence
-- Installable PWA shell and offline caching
-- Live Strava OAuth + activity sync backend code for Vercel
-- Automated GitHub Actions syntax checks
+## Run locally
 
-## Live Strava architecture
-The Vercel deployment exposes:
-- `/api/strava/connect` — starts OAuth
-- `/api/strava/callback` — exchanges the authorization code and stores a sealed HttpOnly session cookie
-- `/api/strava/activities` — refreshes tokens when required and returns recent running activities
-- `/api/strava/disconnect` — clears the BUILD Strava session
+Requires Node.js 20 or later. The app itself has no runtime npm dependencies.
 
-No Strava secret is shipped to the browser.
+```sh
+npm start
+```
 
-## Required Vercel environment variables
-Create these in the Vercel project settings:
+Open `http://127.0.0.1:8765`. Local plan/CSV/manual workflows work without accounts or API keys. Live OAuth requires an HTTPS deployment and the environment variables below.
+
+## Plan import
+
+Use `sample-plan.csv` or `sample-plan.json` as a template. CSV requires Week, Day and Title. Optional columns include Type, Target, Distance Km and Objective. Supported types are long, marathon, interval, threshold, easy, recovery, strength and cross. Weeks must be whole numbers from 1 to 52. Sessions with the same week, day and title must be unique.
+
+The preview lets the runner set the plan name, race, goal and start date. A new plan clears its assessments and keeps imported activities for rematching. Download a backup to retain a previous build.
+
+## Activity import
+
+CSV supports Activity ID, Activity Name, Activity Type, Activity Date, Distance and Moving Time. Choose the export's distance unit in the preview: kilometres, miles or metres. Moving Time accepts seconds, `m:ss` or `h:mm:ss`. Existing activity IDs are preserved when importing an export again.
+
+## Data and privacy
+
+The plan, activities, profile and assessments live in this browser's local storage. Download a backup before clearing browser data, switching devices or replacing a build. Backups contain training data and notes; they contain no Strava access tokens. Cloud accounts and automatic cross-device sync are not implemented.
+
+## Deployment
+
+GitHub Pages can serve the static files for plan import, CSV/manual activity entry, reviews and backups. It cannot run the Strava server routes.
+
+For a Vercel deployment of this repository, use the Other framework preset with no build command and the repository root as the static output. Configure these server-only environment variables:
 
 - `STRAVA_CLIENT_ID`
 - `STRAVA_CLIENT_SECRET`
-- `BUILD_SESSION_SECRET` — a long random secret used to encrypt the session cookie
+- `BUILD_SESSION_SECRET` — an independent random secret of at least 32 characters
 
-The Strava app authorization callback domain must match the deployed BUILD domain.
+Set the Strava application's authorization callback domain to the deployed BUILD host. `/api/health` reports configuration availability without exposing secrets. OAuth stores tokens in a sealed, Secure, HttpOnly cookie. API routes are excluded from the offline cache.
 
-## Plan import
-The current plan import format is JSON. `sample-plan.json` shows the minimum structure. Planned sessions support week, day, type, title, target, objective and optional distance.
+A real OAuth connection and token-refresh cycle still need validation against the owner's Strava account. No paid services are required for the local app.
 
-## Current deployment model
-- GitHub Pages: working static app, including local assessment and CSV import
-- Vercel: intended production web deployment because serverless functions are required for secure Strava OAuth
+## Verification
 
-## Next production milestones
-1. Deploy the repository to Vercel and set the three environment variables.
-2. Complete one real Strava OAuth flow and validate token refresh.
-3. Add persistent user/database storage so a runner can use BUILD across devices.
-4. Import richer plan formats and normalise them into BUILD sessions.
-5. Expand activity assessment beyond summary distance using Strava laps/streams where permitted.
-6. Add automated regression tests around matching and metric calculations.
-7. Package the polished PWA as a native iOS app only after the core loop is proven.
+```sh
+npm test
+```
 
-## Product rule
-Every feature must increase the runner's chance of achieving the marathon goal. If it does not improve a decision during the build, it does not belong in the core product.
+The regression suite covers dates, week navigation, volume, forecast suppression, import validation, explicit units, duplicate IDs, backup validation, offline asset coverage, OAuth state and cookies, token encryption, pagination, and API errors.
+
+For the mobile browser flow:
+
+```sh
+npm install
+npx playwright install chromium
+npm run test:browser
+```
+
+This checks onboarding, plan preview, failed-import preservation, manual runs, review cancellation and saving, progress, backup download/restore, CSV deduplication, goal editing and offline reload at a 390px mobile width. Screenshots are written to `/tmp` as verification artifacts. This is Chromium mobile emulation, not a physical iPhone/Safari certification.
+
+## Remaining production work
+
+- Connect and verify a real Strava account on the configured HTTPS deployment.
+- Add authenticated cloud storage if automatic cross-device continuity is required.
+- Analyse laps/streams for structured intervals and marathon-pace blocks; current comparisons use distance, average pace and the runner's review.
+- Validate on a physical iPhone before native App Store packaging.

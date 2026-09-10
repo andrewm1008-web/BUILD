@@ -1,7 +1,9 @@
 const crypto=require('crypto');
 const {origin}=require('../_strava');
 module.exports=async(req,res)=>{
-  if(!process.env.STRAVA_CLIENT_ID||!process.env.STRAVA_CLIENT_SECRET){res.statusCode=503;return res.end('Strava is not configured yet.')}
+  res.setHeader('Cache-Control','no-store');
+  if(req.method!=='GET'){res.statusCode=405;res.setHeader('Allow','GET');return res.end()}
+  if(!process.env.STRAVA_CLIENT_ID||!process.env.STRAVA_CLIENT_SECRET||!(process.env.BUILD_SESSION_SECRET?.length>=32)){res.statusCode=503;return res.end('Strava is not configured yet.')}
   const state=crypto.randomBytes(18).toString('hex');
   res.setHeader('Set-Cookie',`build_oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`);
   const redirect=`${origin(req)}/api/strava/callback`;
