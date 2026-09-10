@@ -1,0 +1,26 @@
+name: BUILD quality
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Check browser scripts
+        run: |
+          node --check app.js
+          node --check strava-client.js
+          node --check sw.js
+      - name: Check serverless functions
+        run: |
+          node --check api/_strava.js
+          node --check api/strava/connect.js
+          node --check api/strava/callback.js
+          node --check api/strava/activities.js
+          node --check api/strava/disconnect.js
