@@ -15,6 +15,7 @@ jobs:
       - name: Check browser scripts
         run: |
           node --check app.js
+          node --check engine-v2.js
           node --check profile-client.js
           node --check plan-import-client.js
           node --check strava-client.js
