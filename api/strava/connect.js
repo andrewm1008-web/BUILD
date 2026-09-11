@@ -1,5 +1,5 @@
 const crypto=require('crypto');
-const {origin}=require('../_strava');
+const {origin}=require('../../lib/strava.cjs');
 module.exports=async(req,res)=>{
   res.setHeader('Cache-Control','no-store');
   if(req.method!=='GET'){res.statusCode=405;res.setHeader('Allow','GET');return res.end()}

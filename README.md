@@ -45,7 +45,7 @@ The plan, activities, profile and assessments live in this browser's local stora
 
 GitHub Pages can serve the static files for plan import, CSV/manual activity entry, reviews and backups. It cannot run the Strava server routes.
 
-For a Vercel deployment of this repository, use the Other framework preset with no build command and the repository root as the static output. Configure these server-only environment variables:
+For a Vercel deployment, import this repository with the Other framework preset. The checked-in `vercel.json` runs `npm run build`, publishes only the browser assets in `public/`, and bundles the API routes separately. Shared server code lives in `lib/`. Configure these server-only environment variables:
 
 - `STRAVA_CLIENT_ID`
 - `STRAVA_CLIENT_SECRET`
@@ -79,3 +79,13 @@ This checks onboarding, plan preview, failed-import preservation, manual runs, r
 - Add authenticated cloud storage if automatic cross-device continuity is required.
 - Analyse laps/streams for structured intervals and marathon-pace blocks; current comparisons use distance, average pace and the runner's review.
 - Validate on a physical iPhone before native App Store packaging.
+
+## Backend setup checkpoint
+
+A Vercel preview was requested at https://build-nclxj1u5j-andrewm1008-9034.vercel.app. Deployment inspection: https://vercel.com/andrewm1008-9034/build/FVh6c4Yjp5appkckP4YX3z5k5F9D. The connected app could create the preview but returned 403 for project/deployment inspection, so it has not been verified as ready.
+
+To enable live sync, use the BUILD project settings in Vercel to enter the three environment variables above for the intended deployment environment, then redeploy. Generate `BUILD_SESSION_SECRET` with a password manager (at least 32 random characters). Do not put any of these secrets in GitHub, the front-end app, or chat.
+
+Use the stable production hostname as the Strava authorization callback domain. `/api/health` must return `stravaConfigured: true` before the Connect Strava button appears. A real account connection is still required to validate provider access; mocked tests now cover token refresh, token rotation, revoked login, and malformed token responses.
+
+If moving from GitHub Pages to Vercel, download a backup from the old app and restore it on the new hostname. Browser-local data does not transfer across origins automatically.

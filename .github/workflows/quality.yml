@@ -30,10 +30,13 @@ jobs:
       - name: Check serverless functions
         run: |
           node --check api/health.js
-          node --check api/_strava.js
+          node --check lib/strava.cjs
+          node --check scripts/build.cjs
           node --check api/strava/connect.js
           node --check api/strava/callback.js
           node --check api/strava/activities.js
           node --check api/strava/disconnect.js
       - name: Check training calculations and offline boundaries
         run: npm test
+      - name: Build the static deployment files
+        run: npm run build

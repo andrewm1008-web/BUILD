@@ -1,4 +1,4 @@
-const {clearSession,origin}=require('../_strava');
+const {clearSession,origin}=require('../../lib/strava.cjs');
 module.exports=async(req,res)=>{
   res.setHeader('Cache-Control','no-store');
   if(req.method!=='POST'){res.statusCode=405;res.setHeader('Allow','POST');return res.end()}
