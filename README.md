@@ -1,4 +1,4 @@
-# BUILD v0.5.0
+# BUILD v0.7.0
 
 BUILD is a mobile-first marathon plan companion. Bring an existing plan, match completed runs, and review how well each session delivered its purpose.
 
@@ -93,3 +93,7 @@ If moving from GitHub Pages to Vercel, download a backup from the old app and re
 ## Version 0.6.0
 
 Adds workout-specific review prompts, a Forecast evidence breakdown, complete weekly import previews, a simplified strength review and mobile accessibility refinements. Average pace does not automatically grade intervals or fast-finish blocks. Strength uses the same explicit review storage and backup system, without running-distance fields. Live Strava and physical iPhone verification remain pending.
+
+## Frontend language and design
+
+Version 0.7 follows BUILD_Project_Bible_v0.1: BUILD interprets the contribution of completed training to an imported marathon plan. Primary labels are Today's Build, Build Timeline, Build Progress, Build Forecast and Goal Confidence. Confidence describes evidence about the build, not race probability. Supporting sessions use Completed / Modified / Missed. The interface uses cream, navy and racing green, quieter surfaces, an editorial heading hierarchy and explicit empty states.

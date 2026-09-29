@@ -42,7 +42,7 @@
   };
 
   statusCopy=function(m){
-    if(m.forecast==null)return {tone:'neutral',label:'Building signal',text:'BUILD needs a few more completed sessions before it calls the trajectory. Keep logging the work; don’t chase the number.'};
+    if(m.forecast==null)return {tone:'neutral',label:'Getting to know your build',text:'Each review adds context. Review your completed training to build a clearer picture.'};
     if(m.forecast>=90)return {tone:'good',label:'Strong build',text:'The sessions that matter most are landing. Protect recovery and keep the next key session controlled.'};
     if(m.forecast>=82)return {tone:'good',label:'On track',text:'The planned work is landing consistently. The job is consistency, not adding extra work.'};
     if(m.forecast>=72)return {tone:'watch',label:'Within reach',text:'Execution has been mixed. Focus on the next key sessions before adding mileage.'};
@@ -58,7 +58,7 @@
     if(modified&&n)return `${escapeHTML(modified.title)} delivered a different stimulus than planned. Keep the next few days normal and protect ${escapeHTML(n.title)}.`;
     if(m.assessedCount>=4&&m.recentAvg>=90&&m.quality>=88&&n)return `Recent execution is strong. Resist turning good training into more training. Keep ${escapeHTML(n.title)} exactly as prescribed.`;
     if(m.recentAvg<m.progress-6&&n)return `Recent execution has softened relative to the wider build. Make ${escapeHTML(n.title)} the next clean checkpoint rather than adding volume elsewhere.`;
-    if(n)return `${escapeHTML(n.title)} is the next high-impact session. Its purpose: ${escapeHTML(n.objective.toLowerCase())}`;
+    if(n)return `${escapeHTML(n.title)} is your next key session. Its contribution: ${escapeHTML(n.objective.toLowerCase())}`;
     return 'The training work is complete. Nothing needs to be added now; race readiness comes from arriving fresh enough to use it.';
   };
 
@@ -67,7 +67,7 @@
     const keyOutstanding=unreviewed.filter(s=>impact(s)>=.78);
     const strength=due.filter(s=>s.type==='strength');
     const completed=strength.filter(s=>assessed(s)?.score>=84).length;
-    return `<section class="card forecast-explanation"><h2>Behind your Forecast</h2><p>${m.forecast==null?'Waiting for at least four reviewed sessions, including one key session, and 30% weighted coverage.':'A projection of session execution if your current pattern continues. It does not estimate a finish time.'}</p><dl class="evidence-list"><div><dt>Reviewed sessions</dt><dd>${m.assessedCount} of ${m.dueCount} due</dd></div><div><dt>Weighted coverage</dt><dd>${Math.round(m.coverage*100)}%</dd></div><div><dt>Key sessions reviewed</dt><dd>${m.keyEvidence}</dd></div><div><dt>Recent execution</dt><dd>${m.assessedCount?m.recentAvg+'%':'No reviews yet'}</dd></div></dl><p>${keyOutstanding.length?`${keyOutstanding.length} due key sessions still need a review. Missing reviews lower confidence; they are not automatically counted as missed runs.`:'No outstanding key-session reviews.'}</p><details><summary>How the calculation works</summary><p>Forecast combines overall execution (35%), key-session execution (40%) and recent execution (25%), with adjustments for trend and explicitly missed sessions. Long runs carry the most weight, followed by marathon-specific work, intervals, threshold and easy runs.</p><p>Confidence reflects coverage and the number of reviews, including key work. It is evidence coverage, not a probability of achieving your race goal.</p></details>${strength.length?`<h3>Strength consistency</h3><p>${completed} of ${strength.length} due routines completed or mostly completed.</p>`:''}</section>`;
+    return `<section class="card forecast-explanation"><h2>Behind your Build Forecast</h2><p>${m.forecast==null?'Your Build Forecast takes shape as you review your training. It needs at least four reviews, including one key session, and 30% weighted coverage.':'The expected direction of your build if current training trends continue. This version forecasts plan execution, not a race time.'}</p><dl class="evidence-list"><div><dt>Reviewed sessions</dt><dd>${m.assessedCount} of ${m.dueCount} due</dd></div><div><dt>Weighted coverage</dt><dd>${Math.round(m.coverage*100)}%</dd></div><div><dt>Key sessions reviewed</dt><dd>${m.keyEvidence}</dd></div><div><dt>Recent execution</dt><dd>${m.assessedCount?m.recentAvg+'%':'No reviews yet'}</dd></div></dl><p>${keyOutstanding.length?`${keyOutstanding.length} due key sessions still need a review. Missing reviews lower confidence; they are not automatically counted as missed runs.`:'No outstanding key-session reviews.'}</p><details><summary>How the calculation works</summary><p>Forecast combines overall execution (35%), key-session execution (40%) and recent execution (25%), with adjustments for trend and explicitly missed sessions. Long runs carry the most weight, followed by marathon-specific work, intervals, threshold and easy runs.</p><p>Confidence reflects coverage and the number of reviews, including key work. It is evidence coverage, not a probability of achieving your race goal.</p></details>${strength.length?`<h3>Strength consistency</h3><p>${completed} of ${strength.length} due routines completed or mostly completed.</p>`:''}</section>`;
   };
   render();
 })();
