@@ -89,3 +89,7 @@ To enable live sync, use the BUILD project settings in Vercel to enter the three
 Use the stable production hostname as the Strava authorization callback domain. `/api/health` must return `stravaConfigured: true` before the Connect Strava button appears. A real account connection is still required to validate provider access; mocked tests now cover token refresh, token rotation, revoked login, and malformed token responses.
 
 If moving from GitHub Pages to Vercel, download a backup from the old app and restore it on the new hostname. Browser-local data does not transfer across origins automatically.
+
+## Version 0.6.0
+
+Adds workout-specific review prompts, a Forecast evidence breakdown, complete weekly import previews, a simplified strength review and mobile accessibility refinements. Average pace does not automatically grade intervals or fast-finish blocks. Strength uses the same explicit review storage and backup system, without running-distance fields. Live Strava and physical iPhone verification remain pending.
