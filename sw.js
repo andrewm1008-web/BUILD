@@ -1,4 +1,4 @@
-const CACHE='build-v0.5.0';
+const CACHE='build-v0.6.0';
 const ASSETS=['./','./index.html','./styles.css','./extras.css','./calendar.js','./data.js','./workflow-client.js','./icon.svg','./icon-192.png','./icon-512.png','./sample-plan.csv','./app.js','./migration-client.js','./engine-v2.js','./profile-client.js','./plan-import-client.js','./insights-client.js','./strava-client.js','./manifest.webmanifest'];
 const ASSET_URLS=new Set(ASSETS.map(path=>new URL(path,self.registration.scope).href));
 self.addEventListener('install',event=>{

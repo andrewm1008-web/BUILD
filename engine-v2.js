@@ -62,5 +62,12 @@
     return 'The training work is complete. Nothing needs to be added now; race readiness comes from arriving fresh enough to use it.';
   };
 
+  forecastExplanation=function(m){
+    const due=dueSessions(),unreviewed=due.filter(s=>!assessed(s));
+    const keyOutstanding=unreviewed.filter(s=>impact(s)>=.78);
+    const strength=due.filter(s=>s.type==='strength');
+    const completed=strength.filter(s=>assessed(s)?.score>=84).length;
+    return `<section class="card forecast-explanation"><h2>Behind your Forecast</h2><p>${m.forecast==null?'Waiting for at least four reviewed sessions, including one key session, and 30% weighted coverage.':'A projection of session execution if your current pattern continues. It does not estimate a finish time.'}</p><dl class="evidence-list"><div><dt>Reviewed sessions</dt><dd>${m.assessedCount} of ${m.dueCount} due</dd></div><div><dt>Weighted coverage</dt><dd>${Math.round(m.coverage*100)}%</dd></div><div><dt>Key sessions reviewed</dt><dd>${m.keyEvidence}</dd></div><div><dt>Recent execution</dt><dd>${m.assessedCount?m.recentAvg+'%':'No reviews yet'}</dd></div></dl><p>${keyOutstanding.length?`${keyOutstanding.length} due key sessions still need a review. Missing reviews lower confidence; they are not automatically counted as missed runs.`:'No outstanding key-session reviews.'}</p><details><summary>How the calculation works</summary><p>Forecast combines overall execution (35%), key-session execution (40%) and recent execution (25%), with adjustments for trend and explicitly missed sessions. Long runs carry the most weight, followed by marathon-specific work, intervals, threshold and easy runs.</p><p>Confidence reflects coverage and the number of reviews, including key work. It is evidence coverage, not a probability of achieving your race goal.</p></details>${strength.length?`<h3>Strength consistency</h3><p>${completed} of ${strength.length} due routines completed or mostly completed.</p>`:''}</section>`;
+  };
   render();
 })();
