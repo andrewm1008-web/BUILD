@@ -1,4 +1,12 @@
-# BUILD v0.10.0
+# BUILD v0.11.0
+
+## Version 0.11.0
+
+Date fields now explicitly override WebKit's intrinsic sizing and keep a 16px font within the mobile container. The organizer-sourced 2027 marathon selector fills race name and race date in onboarding, generated plans, imports, the manual editor and goal settings. It includes separate London Saturday/Sunday choices, Brighton, Manchester, Edinburgh, Barcelona, Rotterdam and Boston, with an Other option. Sources and verification date live in race-catalog.js; dates are curated, not fetched live.
+
+Long-run progression now uses an explicit endurance target, remaining load weeks, running frequency and optional easy pace. A regular 30 km/week / 10 km recent-long-run profile now reaches 28 km in a 16-week build, rather than 23 km. Established profiles include repeated 28–32 km runs and controlled marathon-effort finishes. Slower runners can receive an explicit time-on-feet target instead of an arbitrary distance requirement. Insufficient progression is rejected and a longer feasible build is suggested. New runners can use 28/32-week preparation when 24 weeks does not produce enough endurance. Limited-day schedules reduce volume rather than packing high mileage into a few oversized runs.
+
+These remain independent starting-plan rules, not validated adaptive coaching or a guarantee of readiness. Existing saved plans are not rewritten; generate and review a replacement to apply the revised progression. All 54 Node regression tests and the production build pass. Physical iPhone/Safari and browser interaction verification remain pending.
 
 ## Version 0.10.0
 
