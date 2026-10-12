@@ -58,7 +58,7 @@
     if(modified&&n)return `${escapeHTML(modified.title)} delivered a different stimulus than planned. Keep the next few days normal and protect ${escapeHTML(n.title)}.`;
     if(m.assessedCount>=4&&m.recentAvg>=90&&m.quality>=88&&n)return `Recent execution is strong. Resist turning good training into more training. Keep ${escapeHTML(n.title)} exactly as prescribed.`;
     if(m.recentAvg<m.progress-6&&n)return `Recent execution has softened relative to the wider build. Make ${escapeHTML(n.title)} the next clean checkpoint rather than adding volume elsewhere.`;
-    if(n)return `${escapeHTML(n.title)} is your next key session. Its contribution: ${escapeHTML(n.objective.toLowerCase())}`;
+    if(n)return `${escapeHTML(n.title)} is your next planned run. Its contribution: ${escapeHTML(n.objective.toLowerCase())}`;
     return 'The training work is complete. Nothing needs to be added now; race readiness comes from arriving fresh enough to use it.';
   };
 
