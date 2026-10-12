@@ -1,5 +1,5 @@
 function forecastExplanation(){return ""}
-const VERSION='0.8.0';
+const VERSION='0.9.0';
 const IMPACT={long:1,marathon:.94,threshold:.80,interval:.86,easy:.36,strength:.28,recovery:.20,cross:.22};
 const SCORES={nailed:100,mostly:84,modified:58,missed:15};
 const SCORE_LABEL={100:'Nailed it',84:'Mostly',58:'Modified',15:'Missed'};
@@ -125,10 +125,11 @@ function syncReviewBanner(){const runs=activities.filter(a=>a.source==='strava-a
 function header(){return `<header><button class="wordmark" data-nav="today" aria-label="BUILD home">BUILD<span>.</span></button><span class="header-race">${escapeHTML(plan.race)}</span><button class="profile-btn" aria-label="Open settings" data-nav="settings">${escapeHTML((profile.name||'R')[0].toUpperCase())}</button></header>`}
 
 function onboarding(){
+  const setup=state.setup||profile.setupDraft||{race:'',goal:'',raceDate:''};
   const steps=[
     `<div class="onboard-mark">BUILD</div><h1>Your plan.<br>Your progress.</h1><p>Import your plan. Connect Strava. See how your training is going.</p><button class="primary" data-onboard-next>Start your build</button>`,
-    `<div class="eyebrow">Your goal</div><h1>Set your goal.</h1><label class="field">Race<input id="raceInput" value="${escapeHTML(plan.race)}"></label><label class="field">Goal time<input id="goalInput" value="${escapeHTML(plan.goal)}"></label><button class="primary" data-onboard-next>Continue</button>`,
-    `<div class="eyebrow">Your plan</div><h1>Bring your plan.</h1><p>Use your coach’s plan or one you already follow.</p><button class="primary" id="onboardImport">Import my plan</button><button class="secondary full" data-onboard-next>Explore example plan</button>`,
+    `<div class="eyebrow">Your goal</div><h1>Set your goal.</h1><label class="field">Marathon<input id="raceInput" placeholder="e.g. London Marathon" value="${escapeHTML(setup.race)}" maxlength="200" required></label><label class="field">Marathon date<input id="raceDateInput" type="date" value="${escapeHTML(setup.raceDate)}" required></label><label class="field">Goal time (optional)<input id="goalInput" placeholder="e.g. 3:30:00" value="${escapeHTML(setup.goal)}" maxlength="8"></label><p class="muted-copy">Your target time, not a prediction. Leave it blank if finishing is your goal.</p><button class="primary" data-onboard-next>Continue</button>`,
+    `<div class="eyebrow">My plan</div><h1>Do you already<br>have a plan?</h1><p>Import an existing plan or enter your own weekly sessions.</p><button class="primary full" id="onboardImport">Import my plan</button><button class="secondary full" id="onboardCreate">Create my plan</button><details><summary>Just exploring?</summary><button class="secondary full" id="onboardExample">Explore example plan</button></details>`,
     `<div class="eyebrow">Completed training</div><h1>You’re ready.</h1><p>Connect Strava in Activity. Clear matches are automatic.</p><button class="primary" data-onboard-finish>View my build</button>`
   ];
   return `<main class="onboarding"><div class="onboard-card">${steps[state.onboardStep]}</div><div class="step-dots">${steps.map((_,i)=>`<i class="${i===state.onboardStep?'active':''}"></i>`).join('')}</div></main>`;
@@ -201,7 +202,7 @@ function bind(){
   const review=document.getElementById('saveReview');if(review)review.onclick=saveReview;
   const remove=document.getElementById('removeReview');if(remove)remove.onclick=()=>{if(!confirm('Remove this assessment? Any matched run returns to your activity inbox.'))return;const key=skey(state.selected),old=assessments[key];delete assessments[key];try{save();closeSheet();notify('Assessment removed.')}catch(e){assessments[key]=old;notify(e.message)}};
   const deleteRun=document.getElementById('deleteActivity');if(deleteRun)deleteRun.onclick=()=>{if(!confirm('Delete this activity from BUILD?'))return;const old=activities;activities=activities.filter(a=>a.id!==state.activity.id);try{save();closeSheet();notify('Activity deleted.')}catch(e){activities=old;notify(e.message)}};
-  document.querySelectorAll('[data-onboard-next]').forEach(b=>b.onclick=()=>{if(state.onboardStep===1){let r=document.getElementById('raceInput'),g=document.getElementById('goalInput');if(r?.value)plan.race=r.value;if(g?.value)plan.goal=g.value;save()}state.onboardStep++;render()});
+  document.querySelectorAll('[data-onboard-next]').forEach(b=>b.onclick=()=>{if(state.onboardStep===1){try{const setup=BuildSetup.goal({race:document.getElementById('raceInput').value,goal:document.getElementById('goalInput').value,raceDate:document.getElementById('raceDateInput').value});const old=profile;profile={...profile,setupDraft:setup};try{save()}catch(error){profile=old;throw error}state.setup=setup;}catch(error){notify(error.message);return}}state.onboardStep++;render()});
   const finish=document.querySelector('[data-onboard-finish]');if(finish)finish.onclick=()=>{profile.onboarded=true;save();state.screen='today';render()};
   const ip=document.getElementById('importPlan');if(ip)ip.onclick=()=>document.getElementById('planFileInput').click();
   const ia=document.getElementById('importActivities');if(ia)ia.onclick=()=>document.getElementById('activityFileInput').click();

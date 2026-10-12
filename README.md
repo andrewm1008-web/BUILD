@@ -1,4 +1,12 @@
-# BUILD v0.8.0
+# BUILD v0.9.0
+
+## Version 0.9.0
+
+First-time goals start blank. Runners enter their own marathon, marathon date and optional target time, then choose to import a plan or create their own. The plan editor supports week-by-week sessions, running and strength types, distances, target instructions, and copying sessions into an empty week. It does not generate a training prescription.
+
+The marathon date and plan length calculate the start date automatically. Imported plans show the race date, editable full plan length, computed start and a deliberate manual-start override before replacement. Existing plans, activities and reviews are untouched until the runner confirms the new plan. A target time is not a predicted finish time.
+
+All 37 Node regression tests and the production build pass. Browser interaction and physical iPhone verification remain pending.
 
 ## Version 0.8.0
 
