@@ -101,19 +101,9 @@ document.addEventListener('keydown',e=>{
 });
 bindWorkflows();
 
-// A sync proposes a match; only explicit confirmation writes the review.
-function promptSyncedMatch(imported){
-  const linked=new Set(Object.values(assessments).map(x=>x.activityId));
-  const runs=imported.filter(a=>!linked.has(a.id)).sort((a,b)=>b.date.localeCompare(a.date));
-  for(const run of runs){
-    const session=bestMatch(run);
-    if(session&&estimatedSessionDate(session)===run.date){openQuickMatch(run,session);return true;}
-  }
-  if(runs.length)notify('Runs synced. Open Activity to choose a planned session.');
-  return false;
-}
+// Matching happens automatically; a review still records the runner’s assessment.
 function openQuickMatch(run,session){
-  const sheet=openWorkflow('Match this run?',`<p><b>${escapeHTML(run.name)}</b> · ${escapeHTML(run.date)}</p><div class="actual-block"><strong>${run.distanceKm.toFixed(1)} km</strong><span>${formatPace(run.movingSeconds,run.distanceKm)}</span></div><p>Looks like <b>${escapeHTML(session.day)} · ${escapeHTML(session.title)}</b></p><p class="muted-copy">${escapeHTML(session.target)}</p><label class="field">How did it go?<select id="quickOutcome"><option value="nailed">Completed as planned</option><option value="mostly">Mostly completed</option><option value="modified">Modified</option></select></label><button class="primary full" id="confirmQuickMatch">Confirm and save</button><button class="secondary full" id="changeQuickMatch">Choose another session</button>`);
+  const sheet=openWorkflow('Review synced run',`<p><b>${escapeHTML(run.name)}</b> · ${escapeHTML(run.date)}</p><div class="actual-block"><strong>${run.distanceKm.toFixed(1)} km</strong><span>${formatPace(run.movingSeconds,run.distanceKm)}</span></div><p>Matched to <b>${escapeHTML(session.day)} · ${escapeHTML(session.title)}</b></p><p class="match-context">Week ${session.week}${estimatedSessionDate(session)?` · Planned ${estimatedSessionDate(session)}`:''}${estimatedSessionDate(session)!==run.date?' · Run completed on a different day':''}</p><p class="muted-copy">${escapeHTML(session.target)}</p><label class="field">How did it go?<select id="quickOutcome"><option value="nailed">Completed as planned</option><option value="mostly">Mostly completed</option><option value="modified">Modified</option></select></label><button class="primary full" id="confirmQuickMatch">Save review</button><button class="secondary full" id="changeQuickMatch">Choose another session</button>`);
   document.getElementById('changeQuickMatch').onclick=()=>{sheet.remove();state.selected=null;state.activity=run;state.pendingActivityId=null;state.reviewRate=null;render()};
   document.getElementById('confirmQuickMatch').onclick=()=>{
     const key=skey(session);

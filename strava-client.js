@@ -15,8 +15,7 @@
       connected=true;lastSync=Date.now();
       // Do not discard an in-progress session review or import dialog during a background sync.
       if(!document.querySelector('.sheet'))render();
-      if(showMessage)notify(`${added} new runs synced${data.truncated?' · Older runs can be added by CSV':''}.`);
-      if(showMessage&&!document.querySelector(".sheet"))promptSyncedMatch(imported);
+      if(showMessage){const matched=automaticMatches().size;notify(`${added} new runs synced · ${matched} automatically matched${data.truncated?' · Older runs can be added by CSV':''}.`);}
       return true;
     }catch(error){if(showMessage)notify(error.message);return false}
     finally{busy=false;document.getElementById('liveStravaControl')?.remove();addControls()}
