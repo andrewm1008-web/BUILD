@@ -1,4 +1,4 @@
-# BUILD v0.11.0
+# BUILD v0.12.0
 
 ## Version 0.11.0
 
@@ -131,3 +131,11 @@ Adds workout-specific review prompts, a Forecast evidence breakdown, complete we
 ## Frontend language and design
 
 Version 0.7 follows BUILD_Project_Bible_v0.1: BUILD interprets the contribution of completed training to an imported marathon plan. Primary labels are Today's Build, Build Timeline, Build Progress, Build Forecast and Goal Confidence. Confidence describes evidence about the build, not race probability. Supporting sessions use Completed / Modified / Missed. The interface uses cream, navy and racing green, quieter surfaces, an editorial heading hierarchy and explicit empty states.
+
+## Version 0.12.0
+
+The curated 2027 marathon picker now adds ten European events and groups races by country. Each entry keeps its official organizer source; unannounced dates are omitted and any other race can be entered manually. Dates were checked on 12 October 2026.
+
+The generator offers Standard (existing defaults) and Extended long-run approaches. Extended requires experienced status, at least 50 km/week over the last four weeks, a recent 18 km run, five running days, a build of at least 16 weeks and easy pace or recent-race information. It aims for 35 km, requires an achieved peak of at least 34 km, and limits predicted duration to 210 minutes. Larger peak runs remain easy; weekly progression, cutbacks and the three-week taper remain in place. These are transparent product heuristics, not validated personalized coaching; a goal time alone never unlocks the option. Existing plans are unchanged until the runner confirms a replacement draft.
+
+Training context: the [B.A.A. training overview](https://www.baa.org/races/boston-marathon/info-for-athletes/boston-marathon-training/) describes advanced long runs of 20–22 miles alongside substantial mileage. BUILD does not reproduce those plans.
