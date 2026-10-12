@@ -1,5 +1,5 @@
 function forecastExplanation(){return ""}
-const VERSION='0.11.0';
+const VERSION='0.12.0';
 const IMPACT={long:1,marathon:.94,threshold:.80,interval:.86,easy:.36,strength:.28,recovery:.20,cross:.22};
 const SCORES={nailed:100,mostly:84,modified:58,missed:15};
 const SCORE_LABEL={100:'Nailed it',84:'Mostly',58:'Modified',15:'Missed'};

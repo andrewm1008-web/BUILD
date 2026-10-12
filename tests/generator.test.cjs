@@ -72,3 +72,20 @@ test('two quality workouts only appear with an established base and spaced days'
   if(hard.length===2){const gap=Math.abs(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].indexOf(hard[0].day)-['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].indexOf(hard[1].day));assert.ok(Math.min(gap,7-gap)>=2);}
  }
 });
+test('extended endurance reaches 35 km with repeated substantial runs and an easy peak',()=>{
+ const {plan,summary}=generate({...input,experience:'experienced',weeklyKm:70,longestKm:24,days:['Mon','Tue','Thu','Sat','Sun'],longRunApproach:'extended',easyPace:'6:00'},'2026-10-12');
+ const longs=plan.sessions.filter(s=>s.type==='long'&&!s.title.includes('race day'));
+ assert.equal(summary.longestKm,35);assert.equal(summary.maxLongMinutes,210);assert.equal(summary.longRunApproach,'extended');
+ assert.ok(longs.filter(s=>s.distanceKm>=32).length>=2);
+ assert.ok(longs.filter(s=>s.distanceKm>32).every(s=>!s.title.includes('final')));
+ assert.ok(longs.every(s=>s.distanceKm*6<=210.1));
+ assert.ok(summary.weeklySummary[13].trainingKm<summary.weeklySummary[12].trainingKm);
+});
+test('extended option requires preparation and duration inputs rather than a fast goal',()=>{
+ const base={...input,experience:'experienced',weeklyKm:70,longestKm:24,days:['Mon','Tue','Thu','Sat','Sun'],longRunApproach:'extended',easyPace:'6:00'};
+ for(const values of [{experience:'regular'},{weeklyKm:49},{longestKm:17},{days:input.days},{weeks:12},{easyPace:''},{easyPace:'7:00'}])assert.throws(()=>generate({...base,...values},'2026-10-12'));
+ assert.throws(()=>generate({...base,longRunApproach:'unknown'},'2026-10-12'));
+ const standard=generate({...base,longRunApproach:'standard',goal:'3:00:00'},'2026-10-12');
+ assert.ok(standard.summary.longestKm<=32);
+ const slower=generate({...base,easyPace:'6:10'},'2026-10-12');assert.ok(slower.summary.longestKm>=34&&slower.summary.longestKm<35);
+});

@@ -7,10 +7,10 @@
       name.dataset.racePickerBound='true';
       const field=name.closest('label'),selected=BuildRaces.find(name.value,date.value);
       const wrapper=document.createElement('div');wrapper.className='race-picker';
-      wrapper.innerHTML=`<label class="field">Choose a marathon<select id="${nameId}RacePicker" aria-label="Choose a marathon"><option value="">Select your marathon</option>${BuildRaces.races.map(r=>`<option value="${r.id}">${escapeHTML(r.label)}</option>`).join('')}<option value="custom">Other marathon / enter manually</option></select></label><p class="race-picker-note" aria-live="polite"></p>`;
+      wrapper.innerHTML=`<label class="field">Choose a marathon<select id="${nameId}RacePicker" aria-label="Choose a marathon"><option value="">Select your marathon</option>${BuildRaces.groups().map(group=>`<optgroup label="${escapeHTML(group.country)}">${group.races.map(r=>`<option value="${r.id}">${escapeHTML(r.label)}</option>`).join('')}</optgroup>`).join('')}<option value="custom">Other marathon / enter manually</option></select></label><p class="race-picker-note" aria-live="polite"></p>`;
       field.before(wrapper);const select=wrapper.querySelector('select'),note=wrapper.querySelector('p');
       select.value=selected?.id||(name.value?'custom':'');
-      function display(){const race=BuildRaces.get(select.value);field.hidden=select.value!=='custom';note.textContent=race?.note||(race?'Date from the event organizer.':'');}
+      function display(){const race=BuildRaces.get(select.value);field.hidden=select.value!=='custom';note.textContent=race?.note||(race?'Published 2027 date · checked 12 October 2026. Confirm your entry details with the organizer.':'');}
       select.onchange=()=>{
         const race=BuildRaces.get(select.value);
         if(race){name.value=race.name;date.value=race.date;name.dispatchEvent(new Event('input',{bubbles:true}));date.dispatchEvent(new Event('input',{bubbles:true}));date.dispatchEvent(new Event('change',{bubbles:true}));}

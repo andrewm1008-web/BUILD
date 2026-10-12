@@ -15,3 +15,14 @@ test('the chosen London day changes the automatic plan start by one day',()=>{
  assert.equal(setup.schedule(races.get('london-2027-sat').date,16).startDate,'2027-01-03');
  assert.equal(setup.schedule(races.get('london-2027-sun').date,16).startDate,'2027-01-04');
 });
+test('expanded European catalog keeps exact dates and one country group per entry',()=>{
+ assert.equal(races.races.length,18);
+ const groups=races.groups();assert.equal(groups.at(-1).country,'United States');
+ assert.equal(groups.flatMap(g=>g.races).length,18);
+ for(const g of groups)assert.ok(g.races.every(r=>r.country===g.country));
+ assert.equal(races.find('Berlin Marathon','2027-09-26').id,'berlin-2027');
+ assert.equal(races.get('rome-2027').date,'2027-03-14');
+ assert.equal(races.get('prague-2027').date,'2027-05-02');
+ assert.equal(races.get('seville-2027').date,'2027-02-21');
+ assert.equal(races.get('zurich-2027').date,'2027-04-11');
+});

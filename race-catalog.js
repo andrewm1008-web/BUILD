@@ -11,7 +11,25 @@ const BuildRaces=(()=>{
     {id:'rotterdam-2027',name:'NN Marathon Rotterdam',label:'NN Marathon Rotterdam 2027 · 11 April',date:'2027-04-11',aliases:['Rotterdam','Rotterdam Marathon'],source:'https://nnmarathonrotterdam.nl/en/'},
     {id:'boston-2027',name:'Boston Marathon',label:'Boston Marathon 2027 · 19 April',date:'2027-04-19',source:'https://www.baa.org/races/boston-marathon/'}
   ];
+  const additions=[
+    ['vienna','Vienna City Marathon','Austria','2027-04-18','https://www.vienna-marathon.com/?go=marathon&lang=en',['Vienna']],
+    ['prague','Vodafone Prague Marathon','Czechia','2027-05-02','https://www.runczech.com/en/events/vodafone-prague-marathon-2027/races/vodafone-prague-marathon',['Prague','Prague Marathon']],
+    ['copenhagen','Copenhagen Marathon','Denmark','2027-05-09','https://copenhagenmarathon.dk/en/',['Copenhagen']],
+    ['berlin','GENERALI BERLIN MARATHON','Germany','2027-09-26','https://www.bmw-berlin-marathon.com/en/press',['Berlin','Berlin Marathon','BMW Berlin Marathon']],
+    ['hamburg','Haspa Marathon Hamburg','Germany','2027-04-25','https://haspa-marathon-hamburg.de/en/race-info-marathon/',['Hamburg','Hamburg Marathon']],
+    ['rome','Acea Run Rome The Marathon','Italy','2027-03-14','https://www.runromethemarathon.com/',['Rome','Rome Marathon']],
+    ['milan','Wizz Air Milano Marathon','Italy','2027-04-04','https://www.milanomarathon.it/en/marathon/',['Milan','Milan Marathon','Milano Marathon']],
+    ['seville','Zurich Seville Marathon','Spain','2027-02-21','https://www.zurichmaratonsevilla.es/en/zms-regulations',['Seville','Seville Marathon','Sevilla']],
+    ['stockholm','adidas Stockholm Marathon','Sweden','2027-05-29','https://stockholmmarathon.se/eng/eng-lopare/',['Stockholm','Stockholm Marathon']],
+    ['zurich','OCHSNER SPORT Zürich Marathon','Switzerland','2027-04-11','https://www.zuerichmarathon.ch/marathon-2/marathon',['Zurich','Zurich Marathon','Zürich Marathon']]
+  ];
+  for(const race of races){race.country=race.id.startsWith('boston')?'United States':race.id.startsWith('barcelona')?'Spain':race.id.startsWith('rotterdam')?'Netherlands':'United Kingdom';}
+  for(const [city,name,country,date,source,aliases]of additions){
+    const formatted=new Date(`${date}T12:00:00Z`).toLocaleDateString('en-GB',{day:'numeric',month:'long',timeZone:'UTC'});
+    races.push({id:`${city}-2027`,name,country,date,source,aliases,label:`${name} 2027 · ${formatted}`});
+  }
+  function groups(){return [...new Set(races.map(r=>r.country))].sort((a,b)=>a==='United States'?1:b==='United States'?-1:a.localeCompare(b)).map(country=>({country,races:races.filter(r=>r.country===country).sort((a,b)=>a.name.localeCompare(b.name)||a.date.localeCompare(b.date))}));}
   const normalized=value=>String(value||'').trim().toLowerCase();
   function find(name,date){return races.find(r=>r.date===date&&[r.name,...(r.aliases||[])].some(n=>normalized(n)===normalized(name)));}
-  return {races,find,get:id=>races.find(r=>r.id===id)};
+  return {races,groups,find,get:id=>races.find(r=>r.id===id)};
 })();
