@@ -14,11 +14,39 @@ test('generated plans use chosen days, current training, recovery weeks and tape
  assert.ok(summary.longestKm<=30);assert.ok(summary.weeklySummary[0].trainingKm<=41);
 });
 test('beginners receive effort-based foundation work and no invented goal paces',()=>{
- const {plan,summary}=generate({...input,goal:'2:39:00',experience:'beginner',weeklyKm:0,longestKm:0,weeks:24,days:['Tue','Thu','Sun']},'2026-10-12');
+ const {plan,summary}=generate({...input,goal:'2:39:00',experience:'beginner',weeklyKm:0,longestKm:0,weeks:28,days:['Tue','Thu','Sun']},'2026-10-12');
  assert.equal(summary.tier,'beginner');assert.equal(summary.weeklySummary[0].phase,'Foundation');
  assert.ok(plan.sessions[0].target.includes('run/walk'));
  assert.equal(plan.sessions.some(s=>['interval','threshold'].includes(s.type)),false);
  assert.equal(plan.sessions.some(s=>s.target.includes('3:47/km')),false);
+});
+test('the former 23 km regular-runner profile now builds to at least 28 km',()=>{
+ const {plan,summary}=generate({...input,weeklyKm:30,longestKm:10},'2026-10-12');
+ assert.ok(summary.longestKm>=28&&summary.longestKm<=32);
+ assert.ok(plan.sessions.filter(s=>s.type==='long'&&!s.title.includes('race day')&&s.distanceKm>=26).length>=2);
+ assert.ok(summary.weeklySummary[0].trainingKm<=31,'Do not jump starting mileage to reach a peak target');
+});
+test('an established runner gets repeated substantial long runs and specific finishes',()=>{
+ const {plan,summary}=generate({...input,experience:'experienced',weeklyKm:70,longestKm:20,days:['Mon','Tue','Thu','Sat','Sun']},'2026-10-12');
+ const longs=plan.sessions.filter(s=>s.type==='long'&&!s.title.includes('race day'));
+ assert.ok(longs.filter(s=>s.distanceKm>=28).length>=3);assert.equal(summary.longestKm,32);
+ assert.ok(longs.some(s=>s.title.includes('final')&&s.target.includes('marathon effort')));
+});
+test('insufficient endurance progression recommends more time instead of a silent short peak',()=>{
+ assert.throws(()=>generate({...input,experience:'beginner',weeklyKm:20,longestKm:8},'2026-10-12'),/Choose a longer build/);
+ const recommendation=vm.runInContext('BuildGenerator.recommend',ctx)({...input,experience:'beginner',weeklyKm:20,longestKm:8},'2026-10-12');
+ assert.ok(recommendation.weeks>16);assert.ok(recommendation.longestKm>=26);
+});
+test('slow easy paces use an explicit time-on-feet peak, while malformed paces fail',()=>{
+ const {summary}=generate({...input,experience:'beginner',weeklyKm:40,longestKm:15,weeks:20,easyPace:'9:00'},'2026-10-12');
+ assert.equal(summary.longRunMode,'time');assert.equal(summary.maxLongMinutes,210);assert.ok(summary.longestKm<=23.4);
+ assert.ok(summary.notes.some(n=>n.includes('time-based')));
+ assert.throws(()=>generate({...input,easyPace:'6:99'},'2026-10-12'));
+});
+test('a three-day schedule does not compress high mileage into oversized ordinary runs',()=>{
+ const {plan,summary}=generate({...input,weeklyKm:90,longestKm:24,experience:'experienced',days:['Tue','Thu','Sun']},'2026-10-12');
+ assert.ok(summary.peakKm<=60.3);assert.ok(summary.notes.some(n=>n.includes('reduces volume')));
+ assert.ok(plan.sessions.filter(s=>s.type!=='long').every(s=>s.distanceKm<=21));
 });
 test('changing the target alone does not change training prescription or workload',()=>{
  const a=generate({...input,recentDistance:5,recentTime:'24:00'},'2026-10-12');

@@ -1,6 +1,6 @@
 {
   "name": "build-marathon",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "private": true,
   "description": "BUILD interprets a marathon plan against completed training.",
   "engines": {

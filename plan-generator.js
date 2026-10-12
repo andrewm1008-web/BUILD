@@ -10,7 +10,7 @@ const BuildGenerator=(()=>{
     if(!Number.isFinite(weekly)||weekly<0||weekly>200||input.weeklyKm==='')throw Error('Enter your average weekly running distance, from 0 to 200 km.');
     if(!Number.isFinite(longest)||longest<0||longest>60||input.longestKm==='')throw Error('Enter your longest recent run, from 0 to 60 km.');
     if(longest>weekly*1.5+5)throw Error('Check your weekly distance and longest recent run.');
-    if(![12,16,20,24].includes(weeks))throw Error('Choose a 12, 16, 20 or 24-week build.');
+    if(![12,16,20,24,28,32].includes(weeks))throw Error('Choose a 12–32 week build from the available lengths.');
     if(input.injury)throw Error('An injury affecting your running needs an individually adapted plan. Import one from your coach or clinician instead.');
     const dates=BuildSetup.schedule(target.raceDate,weeks);
     if(dates.startDate<today)throw Error('That length would start in the past. Choose a shorter build that fits before race day.');
@@ -29,6 +29,9 @@ const BuildGenerator=(()=>{
       racePace=seconds*Math.pow(5/distance,1.06)/5;
       if(racePace<120||racePace>900)throw Error('Check the recent race time and distance.');
     }
+    let easySeconds=null;
+    if(input.easyPace){easySeconds=BuildData.seconds(input.easyPace);if(!Number.isFinite(easySeconds)||easySeconds<120||easySeconds>900)throw Error('Enter an easy pace in min:sec per km, such as 6:00.');}
+    else if(racePace)easySeconds=racePace*1.38;
     const easy=racePace?`${pace(racePace*1.25)}–${pace(racePace*1.48)} · conversational effort`:'Conversational effort · slow down if breathing becomes laboured';
     const controlled=racePace?`${pace(racePace*1.08)}–${pace(racePace*1.14)} · controlled, never all-out`:'Controlled effort · short phrases, never all-out';
     const longIndex=days.indexOf(input.longDay);
@@ -39,26 +42,42 @@ const BuildGenerator=(()=>{
     if(!quality.length&&!beginner)notes.push('Your chosen days cluster around the long run, so the draft keeps those runs easy. Spread the days out to include quality work.');
     if(weekly<15||longest<5)notes.push('This build starts with a run/walk foundation. Progress depends on how you respond, not just reaching a calendar date.');
     notes.push(racePace?'Pace estimates use your recent race result, not the goal time. Effort takes priority.':'No recent race result: sessions use effort instead of invented pace targets.');
-    let load=Math.max(weekly,selected.length*2),longLoad=Math.max(2,Math.min(longest||2,load*.42));
-    const peakCap=Math.max(load,beginner?60:advanced?110:80),longCap=beginner?26:advanced?32:30;
+    // Endurance has its own progression; it is not capped at 42% for every runner.
+    const longShare=selected.length===3?.55:selected.length===4?.50:selected.length===5?.45:.42;
+    const maxLongMinutes=beginner?210:advanced?180:195;
+    const timeBudget=easySeconds?maxLongMinutes*60/easySeconds:Infinity;
+    const targetLong=Math.min(beginner?28:advanced?32:30,timeBudget);
+    const requiredLong=Math.min(beginner?26:advanced?30:28,timeBudget);
+    if(timeBudget<20)throw Error('Your current easy pace needs a marathon run/walk strategy tailored to the event time limit. Use an individually adapted plan rather than this generator.');
+    const frequencyCap=selected.length===3?60:selected.length===4?80:110;
+    let load=Math.max(Math.min(weekly,frequencyCap),selected.length*2),longLoad=Math.max(2,Math.min(longest||2,load*longShare));
+    const peakCap=Math.max(load,Math.min(frequencyCap,beginner?60:advanced?110:80));
+    if(weekly>frequencyCap)notes.push(`With ${selected.length} running days, this draft reduces volume rather than compressing your recent ${weekly} km/week into fewer, oversized sessions.`);
+    const loadSteps=Array.from({length:weeks-3},(_,i)=>i+1).filter(w=>w>1&&w%4!==0).length;
+    const longStep=Math.min(2,Math.max(.5,(targetLong-longLoad)/Math.max(1,loadSteps)));
+    const weights=new Map(selected.filter(day=>day!==input.longDay).map(day=>[day,(longIndex-days.indexOf(day)+7)%7===1?.7:quality.includes(day)?1.2:(days.indexOf(day)-longIndex+7)%7===1?.8:1]));
+    const weightTotal=[...weights.values()].reduce((n,w)=>n+w,0);
     const sessions=[],weeklySummary=[];
     let peak=load,peakLong=longLoad;
     for(let week=1;week<=weeks;week++){
       const taper=week>weeks-3,cutback=!taper&&week%4===0,foundation=beginner&&(weekly<15||longest<5)&&week<=8;
-      if(week>1&&!taper&&!cutback){load=Math.min(peakCap,load*1.07+(beginner?1:0));longLoad=Math.min(longCap,longLoad+1.5,load*.42);}
+      if(week>1&&!taper&&!cutback){load=Math.min(peakCap,load*1.08+(beginner&&load<25?1:0));longLoad=Math.min(targetLong,longLoad+longStep,load*longShare);}
       if(!taper){peak=load;peakLong=longLoad;}
       const fraction=taper?[.75,.55,.30][week-(weeks-2)]:cutback?.78:1;
-      const total=round((taper?peak:load)*fraction),longKm=round(Math.min((taper?peakLong:longLoad)*fraction,total*.42));
-      const ordinary=round((total-longKm)/(selected.length-1)),raceWeek=week===weeks;
+      const total=round((taper?peak:load)*fraction),longKm=round(Math.min((taper?peakLong:longLoad)*fraction,total*longShare));
+      const raceWeek=week===weeks,specific=!foundation&&week>=weeks-7&&!taper&&!cutback;
       const current=[];
       for(const day of selected){
         const date=BuildCalendar.sessionDate({...dates},{week,day});
         if(raceWeek&&date>=target.raceDate)continue;
         if(raceWeek&&day===input.longDay)continue;
         const isLong=day===input.longDay;
-        let type=isLong?'long':'easy',km=isLong?longKm:ordinary,title=isLong?`${km} km long run`:`${km} km easy`,instructions=easy;
+        let type=isLong?'long':'easy',km=isLong?longKm:round((total-longKm)*weights.get(day)/weightTotal),title=isLong?`${km} km long run`:`${km} km easy`,instructions=easy;
         if(foundation)instructions='Easy run/walk · start with 1–3 minutes running / 1 minute walking; shorten the running blocks as needed';
-        if(isLong){instructions+=` · stop at 3 hours; the distance is a ceiling, not a requirement${cutback?' · recovery week':''}`;}
+        if(isLong){
+          instructions+=` · up to ${maxLongMinutes} minutes; stop earlier if the effort or recovery demands it${cutback?' · recovery week':''}`;
+          if(specific&&!beginner&&weekly>=40&&longest>=15&&km>=24&&week%2===1){const block=Math.min(6,Math.floor(km*.2));title=`${km} km with final ${block} km at marathon effort`;instructions+=` · final ${block} km controlled marathon effort${racePace?` (approximately ${pace(racePace*Math.pow(42.195/5,.06))}, estimated from recent fitness)`:''}; skip the faster finish if fatigued`;}
+        }
         else if(!beginner&&!cutback&&!taper&&week>=3&&quality.includes(day)&&km>=5){
           const proposed=quality.indexOf(day)===1||week%2===0?'threshold':'interval',block=proposed==='threshold'?6:3;
           const easyMinutes=racePace?racePace*1.38/60:6,workMinutes=racePace?racePace*1.11/60:5.3;
@@ -71,10 +90,20 @@ const BuildGenerator=(()=>{
       }
       if(raceWeek)current.push({week,day:dateDay(target.raceDate),type:'long',title:`${target.race} · race day`,distanceKm:42.195,target:target.goal?`Your target: ${target.goal}. Start controlled and adjust to conditions.`:'Complete the marathon at a sustainable effort. Run/walk is an option.',objective:'Race day. Use the fitness you have built.'});
       sessions.push(...current);
-      weeklySummary.push({week,phase:raceWeek?'Race week':taper?'Taper':cutback?'Recovery':foundation?'Foundation':'Build',trainingKm:round(current.filter(s=>!s.title.endsWith('· race day')).reduce((n,s)=>n+s.distanceKm,0))});
+      weeklySummary.push({week,phase:raceWeek?'Race week':taper?'Taper':cutback?'Recovery':foundation?'Foundation':specific?'Marathon-specific':week<=Math.max(3,Math.floor((weeks-3)*.3))?'Base':'Build',trainingKm:round(current.filter(s=>!s.title.endsWith('· race day')).reduce((n,s)=>n+s.distanceKm,0))});
     }
+    const achievedLong=Math.max(...sessions.filter(s=>s.type==='long'&&!s.title.endsWith('· race day')).map(s=>s.distanceKm));
+    if(achievedLong+0.2<requiredLong)throw Error(`With these answers, this length reaches only ${achievedLong} km for the long run. Choose a longer build or review your running days.`);
+    notes.push(`Endurance target: ${round(targetLong)} km, based on your training history and ${selected.length} running days. Recovery weeks interrupt the progression before the taper.`);
+    if(timeBudget<(beginner?26:advanced?30:28))notes.push(`Your long runs are time-based: up to ${maxLongMinutes} minutes (about ${round(timeBudget)} km at your current easy pace). A slower runner is not required to cover the same distance as a faster runner.`);
     const plan=BuildData.plan({id:`generated-${Date.now()}`,name:`${target.race} · ${weeks}-week build`,...target,...dates,goal:target.goal||'No time goal',sessions});
-    return {plan,summary:{tier,weeks,startDate:dates.startDate,days:selected.length,peakKm:Math.max(...weeklySummary.map(w=>w.trainingKm)),longestKm:Math.max(...sessions.filter(s=>s.type==='long'&&!s.title.endsWith('· race day')).map(s=>s.distanceKm)),weeklySummary,notes}};
+    return {plan,summary:{tier,weeks,startDate:dates.startDate,days:selected.length,peakKm:Math.max(...weeklySummary.map(w=>w.trainingKm)),longestKm:achievedLong,targetLongKm:round(targetLong),maxLongMinutes,longRunMode:timeBudget<(beginner?26:advanced?30:28)?'time':'distance',weeklySummary,notes}};
   }
-  return {generate};
+  function recommend(input,today=BuildCalendar.today()){
+    for(const weeks of [16,20,24,28,32,12]){
+      try{const result=generate({...input,weeks},today);return {weeks,longestKm:result.summary.longestKm,startDate:result.summary.startDate};}catch{}
+    }
+    return null;
+  }
+  return {generate,recommend};
 })();
