@@ -47,6 +47,23 @@ process.env.PORT='8767';require('../dev-server.cjs');
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('build.activities')).length),2,'Duplicate CSV import must not duplicate runs');
  await page.getByRole('button',{name:'Settings',exact:true}).click();await page.locator('#editBuildGoal').click();await page.locator('#editName').fill('Andy');await page.locator('#saveGoal').click();
  await page.getByRole('button',{name:'Today',exact:true}).click();await page.screenshot({path:'/tmp/build-today-mobile.png',fullPage:true});
+ // Sync should offer the same-day session even when another day is a closer distance.
+ await page.evaluate(()=>{plan.startDate='2027-02-01';plan.sessions=[{week:1,day:'Mon',title:'Easy 10–12 km',type:'easy',distanceKm:12,target:'Easy effort',objective:'Aerobic work'},{week:1,day:'Sat',title:'Easy 10 km',type:'easy',distanceKm:10,target:'Easy effort',objective:'Aerobic work'}];assessments={};activities=[];save();render()});
+ await page.route('**/api/strava/activities',async route=>{await new Promise(resolve=>setTimeout(resolve,250));await route.fulfill({json:{connected:true,activities:[{id:'sync-test',name:'Lunch Run',date:'2027-02-01',distanceKm:10,movingSeconds:3000,source:'strava-api'}]}})});
+ await page.getByRole('button',{name:'Activity',exact:true}).click();
+ await page.locator('#syncStrava').click();
+ assert.equal(await page.locator('#syncStrava').textContent(),'Syncing…');
+ await page.locator('#confirmQuickMatch').waitFor();
+ assert.ok(await page.getByText('Mon · Easy 10–12 km',{exact:true}).count());
+ await page.locator('#cancelWorkflow').click();
+ assert.equal(await page.evaluate(()=>Object.keys(assessments).length),0,'Cancel saves no match or review');
+ await page.locator('#syncStrava').click();await page.locator('#confirmQuickMatch').click();
+ assert.equal(await page.evaluate(()=>Object.keys(assessments).length),1);
+ assert.equal(await page.evaluate(()=>assessments[skey(plan.sessions[0])].activityId),'sync-test');
+ await page.locator('#syncStrava').click();await page.waitForFunction(()=>document.getElementById('syncStrava')?.textContent==='Sync now');
+ assert.equal(await page.locator('#confirmQuickMatch').count(),0,'Repeated sync does not review the same run twice');
+ // Restore the fixture used by the offline review checks.
+ await page.locator('#backupFileInput').setInputFiles({name:'backup.json',mimeType:'application/json',buffer});await page.locator('#confirmRestore').click();
  await page.evaluate(()=>navigator.serviceWorker.ready);await page.reload();await context.setOffline(true);await page.reload();
  await page.getByRole('button',{name:'Activity',exact:true}).click();assert.ok(await page.getByText('Reviewed runs',{exact:true}).count());
  await page.locator('[data-session]').first().click();await page.getByText('Held the planned effort.',{exact:true}).waitFor();

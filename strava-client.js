@@ -2,6 +2,7 @@
   const API='/api/strava';let ready=false,connected=false,busy=false,lastSync=0;
   async function sync(showMessage=false){
     if(!ready||busy)return false;busy=true;
+    const syncButton=document.getElementById("syncStrava");if(syncButton){syncButton.disabled=true;syncButton.textContent="Syncing…";}
     try{
       const response=await fetch(`${API}/activities`,{credentials:'include',cache:'no-store'});
       if(response.status===401){connected=false;if(showMessage)notify('Reconnect Strava to sync your runs.');return false}
@@ -15,6 +16,7 @@
       // Do not discard an in-progress session review or import dialog during a background sync.
       if(!document.querySelector('.sheet'))render();
       if(showMessage)notify(`${added} new runs synced${data.truncated?' · Older runs can be added by CSV':''}.`);
+      if(showMessage&&!document.querySelector(".sheet"))promptSyncedMatch(imported);
       return true;
     }catch(error){if(showMessage)notify(error.message);return false}
     finally{busy=false;document.getElementById('liveStravaControl')?.remove();addControls()}
