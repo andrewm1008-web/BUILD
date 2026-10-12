@@ -1,4 +1,4 @@
-# BUILD v0.12.0
+# BUILD v0.12.1
 
 ## Version 0.11.0
 
@@ -139,3 +139,7 @@ The curated 2027 marathon picker now adds ten European events and groups races b
 The generator offers Standard (existing defaults) and Extended long-run approaches. Extended requires experienced status, at least 50 km/week over the last four weeks, a recent 18 km run, five running days, a build of at least 16 weeks and easy pace or recent-race information. It aims for 35 km, requires an achieved peak of at least 34 km, and limits predicted duration to 210 minutes. Larger peak runs remain easy; weekly progression, cutbacks and the three-week taper remain in place. These are transparent product heuristics, not validated personalized coaching; a goal time alone never unlocks the option. Existing plans are unchanged until the runner confirms a replacement draft.
 
 Training context: the [B.A.A. training overview](https://www.baa.org/races/boston-marathon/info-for-athletes/boston-marathon-training/) describes advanced long runs of 20–22 miles alongside substantial mileage. BUILD does not reproduce those plans.
+
+## Version 0.12.1
+
+All next-run references now use one chronological selector, including coaching text that previously preferred a later key workout. The Today card shows the exact scheduled date (or week/day for undated plans), never substitutes strength/cross-training for a run, and refreshes when the phone returns to the app after a date change. Reviewed and automatically matched runs stay excluded.

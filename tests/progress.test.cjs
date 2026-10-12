@@ -16,7 +16,7 @@ test('Sunday belongs at the end of a Monday-start training week',()=>{
 test('next sessions follow dates even if Sunday appears first in the stored plan',()=>{
  const run=app();run("plan={startDate:'2027-02-01',weeks:2,currentWeek:1,sessions:[{week:1,day:'Sun',title:'Long run',type:'long'},{week:1,day:'Tue',title:'Intervals',type:'interval'},{week:1,day:'Mon',title:'Easy',type:'easy'}]};assessments={};activities=[];BuildCalendar.today=()=> '2027-02-01'");
  assert.equal(run('upcomingSessions()[0].title'),'Easy');
- assert.equal(run('nextKey().title'),'Intervals');
+ assert.equal(run('nextKey().title'),'Easy');
  run("assessments[skey(plan.sessions[2])]={score:100}");assert.equal(run('upcomingSessions()[0].title'),'Intervals');
 });
 test('next-session ordering excludes past runs and already auto-matched runs',()=>{
@@ -27,6 +27,18 @@ test('next-session ordering excludes past runs and already auto-matched runs',()
 test('undated plans still order the current week by weekday rather than insertion order',()=>{
  const run=app();run("plan={weeks:2,currentWeek:1,sessions:[{week:1,day:'Sun',title:'Long run',type:'long'},{week:1,day:'Tue',title:'Intervals',type:'interval'}]};assessments={};activities=[]");
  assert.equal(run("upcomingSessions('2027-02-01')[0].title"),'Intervals');
+});
+test('the rendered Next session card shows Tuesday before Sunday with its exact date',()=>{
+ const run=app();run("plan={id:'test',race:'London',goal:'3:30',startDate:'2027-02-01',weeks:2,currentWeek:1,sessions:[{week:1,day:'Sun',title:'Sunday long run',type:'long',distanceKm:20,target:'Easy',objective:'Endurance'},{week:1,day:'Tue',title:'Tuesday intervals',type:'interval',distanceKm:10,target:'Controlled',objective:'Quality'}]};assessments={};activities=[];BuildCalendar.today=()=> '2027-02-01'");
+ const card=run("today().split('today-session')[1].split('</section>')[0]");
+ assert.ok(card.includes('Tuesday intervals'));assert.ok(card.includes('Tue, 2 Feb 2027'));assert.ok(!card.includes('Sunday long run'));
+ run("BuildCalendar.today=()=> '2027-02-03'");assert.equal(run('nextPlannedRun().title'),'Sunday long run');
+});
+test('the next run skips strength but never skips an earlier easy run for a key workout',()=>{
+ const run=app();run("plan={id:'test',race:'London',startDate:'2027-02-01',weeks:2,sessions:[{week:1,day:'Sun',title:'Long',type:'long',distanceKm:20},{week:1,day:'Tue',title:'Easy first',type:'easy',distanceKm:8},{week:1,day:'Mon',title:'Strength',type:'strength'}]};assessments={};activities=[];BuildCalendar.today=()=> '2027-02-01'");
+ assert.equal(run('nextPlannedRun().title'),'Easy first');assert.equal(run('nextKey().title'),'Easy first');
+ run("assessments[skey(plan.sessions[1])]={score:100}");assert.equal(run('nextPlannedRun().title'),'Long');
+ run("assessments[skey(plan.sessions[0])]={score:100}");assert.equal(run('nextPlannedRun()'),undefined);
 });
 test('race date and week arithmetic survive daylight-saving boundaries',()=>{
   const run=app();

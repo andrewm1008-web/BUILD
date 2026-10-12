@@ -1,5 +1,5 @@
 function forecastExplanation(){return ""}
-const VERSION='0.12.0';
+const VERSION='0.12.1';
 const IMPACT={long:1,marathon:.94,threshold:.80,interval:.86,easy:.36,strength:.28,recovery:.20,cross:.22};
 const SCORES={nailed:100,mostly:84,modified:58,missed:15};
 const SCORE_LABEL={100:'Nailed it',84:'Mostly',58:'Modified',15:'Missed'};
@@ -101,7 +101,9 @@ function statusCopy(m){
   return {tone:'risk',label:'Needs attention',text:'Recent execution is pulling the build down. Protect recovery, then re-establish the key sessions.'};
 }
 function upcomingSessions(date=BuildCalendar.today()){const linked=new Set(automaticMatches().values());return BuildCalendar.upcoming(plan,date).filter(s=>!assessed(s)&&!linked.has(skey(s)))}
-function nextKey(){const next=upcomingSessions();return next.find(s=>impact(s)>=.78)||next.find(s=>!['strength','cross'].includes(s.type))||next[0];}
+function nextPlannedRun(date=BuildCalendar.today()){return upcomingSessions(date).find(s=>!['strength','cross'].includes(s.type));}
+function nextKey(){return nextPlannedRun();}
+function plannedRunDate(session){const date=estimatedSessionDate(session);return date?new Date(`${date}T12:00:00Z`).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}):`Week ${session.week} · ${session.day}`;}
 function coachingInsight(){
   const m=metrics(), n=nextKey();
   const missed=plan.sessions.filter(s=>s.week>=Math.max(1,state.week-2)&&s.week<=state.week&&assessed(s)?.score<=20&&impact(s)>.7);
@@ -137,9 +139,9 @@ function onboarding(){
 }
 function today(){
   const week=BuildCalendar.currentWeek(plan),ss=plan.sessions.filter(s=>s.week===week),ws=weekStats(week);
-  const d=new Date(),date=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const date=BuildCalendar.today();
   const dated=plan.sessions.map(session=>({session,date:estimatedSessionDate(session)})).filter(x=>x.date).sort((a,b)=>a.date.localeCompare(b.date));
-  const upcoming=upcomingSessions(date),next=upcoming.find(s=>!['strength','cross'].includes(s.type))||upcoming[0];
+  const next=nextPlannedRun(date);
   const current=next?{session:next,date:estimatedSessionDate(next)}:null;
   const latest=[...activities].sort((a,b)=>(b.date||'').localeCompare(a.date||''))[0];
   const auto=automaticMatches(),reviewed=latest?plan.sessions.find(x=>assessed(x)?.activityId===latest.id):null;
@@ -147,7 +149,7 @@ function today(){
   const planned=ss.reduce((n,x)=>n+(Number(x.distanceKm)||0),0);
   const dates=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   return `${header()}<main><section class="page-head home-head"><div class="eyebrow">${plan.id==='london-239'?'Example plan · ':''}<span>Week ${week} of ${plan.weeks}</span></div><h1>Today</h1></section>
-  ${next?`<section class="today-session"><div class="card-top"><span class="eyebrow">${current?.date===date?'Today’s session':'Next session'}</span><span class="type-tag">${typeName(next.type)}</span></div><h2>${escapeHTML(next.title)}</h2><p>${escapeHTML(next.target)}</p><div class="session-footer"><span>${next.distanceKm?`<strong>${next.distanceKm}</strong> km`:'As prescribed'}${current?.date&&current.date!==date?` · ${escapeHTML(next.day)}`:''}</span><button class="session-link" data-session="${encodeURIComponent(skey(next))}">${assessed(next)?'View review':'View session'} <span aria-hidden="true">↗</span></button></div></section>`:`<section class="today-session"><div class="eyebrow">Your plan</div><h2>${dated.length&&dated.at(-1).date<date?'Build complete':'No session scheduled'}</h2><p>${dated.length&&dated.at(-1).date<date?'Your plan has reached its final day.':'Your next planned session will appear here.'}</p><button class="secondary" data-nav="plan">View plan</button></section>`}
+  ${next?`<section class="today-session"><div class="card-top"><span class="eyebrow">${current?.date===date?'Today’s session':'Next session'}</span><span class="type-tag">${typeName(next.type)}</span></div><h2>${escapeHTML(next.title)}</h2><p>${escapeHTML(next.target)}</p><div class="session-footer"><span>${next.distanceKm?`<strong>${next.distanceKm}</strong> km`:'As prescribed'} · ${escapeHTML(plannedRunDate(next))}</span><button class="session-link" data-session="${encodeURIComponent(skey(next))}">${assessed(next)?'View review':'View session'} <span aria-hidden="true">↗</span></button></div></section>`:`<section class="today-session"><div class="eyebrow">Your plan</div><h2>${dated.length&&dated.at(-1).date<date?'Build complete':'No session scheduled'}</h2><p>${dated.length&&dated.at(-1).date<date?'Your plan has reached its final day.':'Your next planned run will appear here.'}</p><button class="secondary" data-nav="plan">View plan</button></section>`}
   <div class="section-title"><h2>Latest run</h2></div><section id="stravaConnection" class="home-sync" aria-live="polite"></section>
   ${latest?`<section class="card latest-run"><div class="card-top"><h3>${escapeHTML(latest.name||'Run')}</h3><span class="run-date">${escapeHTML(latest.date||'No date')}</span></div><p class="match-state">${matched?`${reviewed?'✓ Reviewed':'✓ Automatically matched'} · ${escapeHTML(matched.day)}`:'Choose a planned session'}</p><div class="run-comparison"><div><span>Planned</span><strong>${matched?.distanceKm?`${matched.distanceKm} <small>km</small>`:'—'}</strong><small>${matched?escapeHTML(typeName(matched.type)):'No confirmed match'}</small></div><div><span>Actual</span><strong>${latest.distanceKm.toFixed(1)} <small>km</small></strong><small>${formatPace(latest.movingSeconds,latest.distanceKm)} · ${formatDuration(latest.movingSeconds)}</small></div></div><button class="primary full" ${reviewed?`data-session="${encodeURIComponent(skey(reviewed))}"`:`data-activity="${escapeHTML(latest.id)}"`}>${reviewed?'View review':matched?'Review run':'Match and review'} <span aria-hidden="true">↗</span></button></section>`:'<section class="card empty-run"><h3>Your first run goes here</h3><p>Connect Strava to bring in your completed runs.</p><button class="secondary" data-nav="inbox">View activity</button></section>'}
   <div class="section-title"><h2>This week</h2><span>${ws.done} / ${ws.count} reviewed</span></div><div class="week-days">${dates.map(day=>{const sessions=ss.filter(x=>x.day===day),first=sessions.find(x=>!assessed(x))||sessions[0],logged=sessions.some(x=>assessed(x)||[...auto.values()].includes(skey(x)));return `<button class="week-day ${logged?'logged':''}" ${first?`data-session="${encodeURIComponent(skey(first))}"`:'disabled'} aria-label="${day}${first?` · ${escapeHTML(first.title)}`:' · No planned session'}"><span>${day[0]}</span><i aria-hidden="true"></i></button>`}).join('')}</div><div class="week-foot"><span><b>${ws.distance} km</b> recorded</span><span>${Math.round(planned)} km planned</span></div>${activities.filter(x=>!Object.values(assessments).some(a=>a.activityId===x.id)).length>1?`<button class="text-btn full" data-nav="inbox">View all runs to review →</button>`:''}
@@ -257,3 +259,7 @@ function loadDemoActivities(){const demo=[{id:'demo-1',name:'Tuesday intervals',
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 render();
+
+// A phone may keep the app open overnight: refresh the schedule on return.
+let scheduleDay=BuildCalendar.today();
+document.addEventListener?.('visibilitychange',()=>{const date=BuildCalendar.today();if(document.visibilityState==='visible'&&date!==scheduleDay){scheduleDay=date;render();}});
