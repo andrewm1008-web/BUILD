@@ -13,6 +13,21 @@ test('Sunday belongs at the end of a Monday-start training week',()=>{
   assert.equal(run("BuildCalendar.sessionDate({startDate:'2027-02-01'},{week:1,day:'Sun'})"),'2027-02-07');
   assert.equal(run("BuildCalendar.sessionDate({startDate:'2027-02-01'},{week:2,day:'Tue'})"),'2027-02-09');
 });
+test('next sessions follow dates even if Sunday appears first in the stored plan',()=>{
+ const run=app();run("plan={startDate:'2027-02-01',weeks:2,currentWeek:1,sessions:[{week:1,day:'Sun',title:'Long run',type:'long'},{week:1,day:'Tue',title:'Intervals',type:'interval'},{week:1,day:'Mon',title:'Easy',type:'easy'}]};assessments={};activities=[];BuildCalendar.today=()=> '2027-02-01'");
+ assert.equal(run('upcomingSessions()[0].title'),'Easy');
+ assert.equal(run('nextKey().title'),'Intervals');
+ run("assessments[skey(plan.sessions[2])]={score:100}");assert.equal(run('upcomingSessions()[0].title'),'Intervals');
+});
+test('next-session ordering excludes past runs and already auto-matched runs',()=>{
+ const run=app();run("plan={startDate:'2027-02-01',weeks:2,currentWeek:1,sessions:[{week:1,day:'Sun',title:'Long run',type:'long',distanceKm:20},{week:1,day:'Tue',title:'Intervals',type:'interval',distanceKm:10},{week:1,day:'Mon',title:'Easy',type:'easy',distanceKm:10}]};assessments={};activities=[{id:'done',source:'strava-api',date:'2027-02-01',distanceKm:10}]");
+ assert.equal(run("upcomingSessions('2027-02-01')[0].title"),'Intervals');
+ assert.equal(run("upcomingSessions('2027-02-03')[0].title"),'Long run');
+});
+test('undated plans still order the current week by weekday rather than insertion order',()=>{
+ const run=app();run("plan={weeks:2,currentWeek:1,sessions:[{week:1,day:'Sun',title:'Long run',type:'long'},{week:1,day:'Tue',title:'Intervals',type:'interval'}]};assessments={};activities=[]");
+ assert.equal(run("upcomingSessions('2027-02-01')[0].title"),'Intervals');
+});
 test('race date and week arithmetic survive daylight-saving boundaries',()=>{
   const run=app();
   assert.equal(run("BuildCalendar.startForRace('2027-04-25',12)"),'2027-02-01');

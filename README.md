@@ -1,4 +1,14 @@
-# BUILD v0.9.0
+# BUILD v0.10.0
+
+## Version 0.10.0
+
+Next-session selection now sorts actual dates and skips past sessions, saved reviews and clear automatic matches. Undated plans also use weekday order. Progress insights use the same ordering, so an earlier Tuesday interval cannot be displaced by a Sunday long run solely because of array order.
+
+"Make a plan for me" is a guided generator, separate from the advanced manual session editor. It asks about recent weekly distance, longest run, experience, available days, long-run preference, race date and optional recent race performance. It makes a rules-based starting draft with easy running, recovery weeks, appropriate quality sessions and a taper. Newer runners can receive a 24-week run/walk foundation. It rejects schedules that start in the past, insufficient preparation windows, incompatible days and current injuries limiting running. Goal time does not set training intensity. Optional pace estimates are heuristics based on the recent result; effort takes priority.
+
+The structure was cross-checked against public [London Marathon beginner guidance](https://www.londonmarathonevents.co.uk/london-marathon/start-training) and [B.A.A. training guidance](https://www.baa.org/races/boston-marathon/info-for-athletes/boston-marathon-training/). These are independent BUILD rules, not copied or endorsed official plans. They have not been clinically or prospectively validated, are not an adaptive coaching service, and do not predict a finish time. Review and adjust the draft before use.
+
+All 46 Node regression tests and the production build pass. Browser interaction and physical iPhone verification remain pending.
 
 ## Version 0.9.0
 

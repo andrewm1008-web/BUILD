@@ -1,5 +1,5 @@
 function forecastExplanation(){return ""}
-const VERSION='0.9.0';
+const VERSION='0.10.0';
 const IMPACT={long:1,marathon:.94,threshold:.80,interval:.86,easy:.36,strength:.28,recovery:.20,cross:.22};
 const SCORES={nailed:100,mostly:84,modified:58,missed:15};
 const SCORE_LABEL={100:'Nailed it',84:'Mostly',58:'Modified',15:'Missed'};
@@ -100,7 +100,8 @@ function statusCopy(m){
   if(m.forecast>=76)return {tone:'watch',label:'Within reach',text:'The build is viable, but the next key sessions matter. Prioritise execution over extra mileage.'};
   return {tone:'risk',label:'Needs attention',text:'Recent execution is pulling the build down. Protect recovery, then re-establish the key sessions.'};
 }
-function nextKey(){const week=BuildCalendar.currentWeek(plan);return plan.sessions.find(s=>s.week>=week&&impact(s)>=.78&&!assessed(s))||plan.sessions.find(s=>s.week>=week&&!assessed(s));}
+function upcomingSessions(date=BuildCalendar.today()){const linked=new Set(automaticMatches().values());return BuildCalendar.upcoming(plan,date).filter(s=>!assessed(s)&&!linked.has(skey(s)))}
+function nextKey(){const next=upcomingSessions();return next.find(s=>impact(s)>=.78)||next.find(s=>!['strength','cross'].includes(s.type))||next[0];}
 function coachingInsight(){
   const m=metrics(), n=nextKey();
   const missed=plan.sessions.filter(s=>s.week>=Math.max(1,state.week-2)&&s.week<=state.week&&assessed(s)?.score<=20&&impact(s)>.7);
@@ -129,7 +130,7 @@ function onboarding(){
   const steps=[
     `<div class="onboard-mark">BUILD</div><h1>Your plan.<br>Your progress.</h1><p>Import your plan. Connect Strava. See how your training is going.</p><button class="primary" data-onboard-next>Start your build</button>`,
     `<div class="eyebrow">Your goal</div><h1>Set your goal.</h1><label class="field">Marathon<input id="raceInput" placeholder="e.g. London Marathon" value="${escapeHTML(setup.race)}" maxlength="200" required></label><label class="field">Marathon date<input id="raceDateInput" type="date" value="${escapeHTML(setup.raceDate)}" required></label><label class="field">Goal time (optional)<input id="goalInput" placeholder="e.g. 3:30:00" value="${escapeHTML(setup.goal)}" maxlength="8"></label><p class="muted-copy">Your target time, not a prediction. Leave it blank if finishing is your goal.</p><button class="primary" data-onboard-next>Continue</button>`,
-    `<div class="eyebrow">My plan</div><h1>Do you already<br>have a plan?</h1><p>Import an existing plan or enter your own weekly sessions.</p><button class="primary full" id="onboardImport">Import my plan</button><button class="secondary full" id="onboardCreate">Create my plan</button><details><summary>Just exploring?</summary><button class="secondary full" id="onboardExample">Explore example plan</button></details>`,
+    `<div class="eyebrow">My plan</div><h1>Do you already<br>have a plan?</h1><p>Bring a plan you follow, or let BUILD make one for you.</p><button class="primary full" id="onboardImport">Import my plan</button><button class="secondary full" id="onboardGenerate">Make a plan for me</button><details><summary>More options</summary><button class="secondary full" id="onboardCreate">Enter my own sessions</button><button class="secondary full" id="onboardExample">Explore example plan</button></details>`,
     `<div class="eyebrow">Completed training</div><h1>You’re ready.</h1><p>Connect Strava in Activity. Clear matches are automatic.</p><button class="primary" data-onboard-finish>View my build</button>`
   ];
   return `<main class="onboarding"><div class="onboard-card">${steps[state.onboardStep]}</div><div class="step-dots">${steps.map((_,i)=>`<i class="${i===state.onboardStep?'active':''}"></i>`).join('')}</div></main>`;
@@ -138,8 +139,8 @@ function today(){
   const week=BuildCalendar.currentWeek(plan),ss=plan.sessions.filter(s=>s.week===week),ws=weekStats(week);
   const d=new Date(),date=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const dated=plan.sessions.map(session=>({session,date:estimatedSessionDate(session)})).filter(x=>x.date).sort((a,b)=>a.date.localeCompare(b.date));
-  const current=dated.find(x=>x.date===date&&!['strength','cross'].includes(x.session.type))||dated.find(x=>x.date>=date&&!assessed(x.session));
-  const next=current?.session||(!plan.startDate?ss.find(x=>!assessed(x))||ss[0]:null);
+  const upcoming=upcomingSessions(date),next=upcoming.find(s=>!['strength','cross'].includes(s.type))||upcoming[0];
+  const current=next?{session:next,date:estimatedSessionDate(next)}:null;
   const latest=[...activities].sort((a,b)=>(b.date||'').localeCompare(a.date||''))[0];
   const auto=automaticMatches(),reviewed=latest?plan.sessions.find(x=>assessed(x)?.activityId===latest.id):null;
   const matched=reviewed||(latest?plan.sessions.find(x=>skey(x)===auto.get(latest.id)):null);

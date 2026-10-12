@@ -92,9 +92,11 @@ function bindWorkflows(){
   const bind=(id,fn)=>{const e=document.getElementById(id);if(e)e.onclick=fn};
   bind('manualActivity',manualActivity);bind('onboardImport',choosePlan);bind('importPlan',choosePlan);
   bind('onboardCreate',()=>openPlanBuilder());
+  bind('onboardGenerate',()=>openPlanGenerator());
   bind('onboardExample',()=>previewPlan({...structuredClone(defaultPlan),...(state.setup||profile.setupDraft||{})}));
   const ip=document.getElementById('importPlan');if(ip)ip.textContent='Import a plan';
-  if(ip&&!document.getElementById('createPlan')){const b=document.createElement('button');b.id='createPlan';b.className='secondary full';b.textContent='Create a plan';b.onclick=()=>openPlanBuilder();ip.after(b);}
+  if(ip&&!document.getElementById('generatePlan')){const b=document.createElement('button');b.id='generatePlan';b.className='primary full';b.textContent='Make a plan for me';b.onclick=()=>openPlanGenerator();ip.after(b);}
+  if(ip&&!document.getElementById('createPlan')){const b=document.createElement('button');b.id='createPlan';b.className='secondary full';b.textContent='Enter my own sessions';b.onclick=()=>openPlanBuilder();document.getElementById('generatePlan').after(b);}
   bind('exportBackup',()=>downloadJSON(`BUILD-backup-${new Date().toISOString().slice(0,10)}.json`,{format:'BUILD_BACKUP',version:1,exportedAt:new Date().toISOString(),plan,assessments,activities,profile}));
   bind('restoreBackup',()=>document.getElementById('backupFileInput').click());
 }

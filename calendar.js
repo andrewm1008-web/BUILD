@@ -33,5 +33,12 @@ const BuildCalendar = (() => {
     const race = dayNumber(raceDate);
     return race == null ? null : iso(race - ((Number(weeks) || 12) * 7 - 1));
   }
-  return {sessionDate, currentWeek, isDue, startForRace};
+  function upcoming(plan,date=today()){
+    const week=currentWeek(plan,date),now=dayNumber(date),weekday=now==null?0:(new Date(now*DAY_MS).getUTCDay()+6)%7;
+    return plan.sessions.filter(s=>{const scheduled=sessionDate(plan,s);return scheduled?scheduled>=date:s.week>week||(s.week===week&&weekdays[s.day]>=weekday)}).sort((a,b)=>{
+      const da=sessionDate(plan,a),db=sessionDate(plan,b);
+      return da&&db?da.localeCompare(db):a.week-b.week||weekdays[a.day]-weekdays[b.day];
+    });
+  }
+  return {sessionDate, currentWeek, isDue, startForRace,upcoming,today};
 })();
