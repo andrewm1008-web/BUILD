@@ -1,6 +1,7 @@
-const CACHE='build-v0.9.0';
+const CACHE='build-v0.10.0';
 const ASSETS=['./','./index.html','./styles.css','./extras.css','./calendar.js','./data.js','./workflow-client.js','./icon.svg','./icon-192.png','./icon-512.png','./sample-plan.csv','./app.js','./migration-client.js','./engine-v2.js','./profile-client.js','./plan-import-client.js','./insights-client.js','./strava-client.js','./manifest.webmanifest'];
 ASSETS.push('./setup.js','./plan-builder-client.js');
+ASSETS.push('./plan-generator.js','./plan-generator-client.js');
 const ASSET_URLS=new Set(ASSETS.map(path=>new URL(path,self.registration.scope).href));
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));
