@@ -33,13 +33,29 @@ function openWorkflow(title,content){
   document.body.appendChild(sheet);document.getElementById('cancelWorkflow').onclick=()=>sheet.remove();sheet.querySelector('input,button,select')?.focus();return sheet;
 }
 function previewPlan(candidate){
-  const sheet=openWorkflow('Review your plan',`<p>${candidate.sessions.length} sessions across ${candidate.weeks} weeks.</p><label class="field">Plan name<input id="importName" value="${escapeHTML(candidate.name)}"></label><label class="field">Race<input id="importRace" value="${escapeHTML(candidate.race==='Marathon'?plan.race:candidate.race)}"></label><label class="field">Goal time<input id="importGoal" value="${escapeHTML(candidate.goal==='Your race goal'?plan.goal:candidate.goal)}"></label><label class="field">Plan start date<input id="importStart" type="date" value="${candidate.startDate||''}"></label><p class="muted-copy">Weeks run from your chosen start date. Leave it blank to advance the current week manually in Settings.</p><section class="card">${Array.from({length:candidate.weeks},(_,i)=>{const sessions=candidate.sessions.filter(s=>s.week===i+1),km=sessions.filter(s=>!['strength','cross'].includes(s.type)).reduce((n,s)=>n+(s.distanceKm||0),0);return `<details><summary>Week ${i+1} · ${sessions.length} sessions · ${km.toFixed(1)} planned km</summary>${sessions.map(s=>`<p>${escapeHTML(s.day)} · ${escapeHTML(s.title)}<br><small>${escapeHTML(s.target||'No target supplied')}</small></p>`).join('')||'<p>No sessions supplied for this week.</p>'}</details>`}).join('')}</section><p class="muted-copy">Replacing your plan clears its session assessments. Your imported runs stay available to match again. Download a backup first if you want to keep the existing build.</p><button class="primary full" id="confirmPlan">Use this plan</button>`);
+  const setup=!profile.onboarded?(state.setup||profile.setupDraft):null;
+  const race=setup?.race||(candidate.race==='Marathon'?(plan.id==='london-239'?'':plan.race):candidate.race);
+  const goal=setup?.goal??(candidate.goal==='Your race goal'?(plan.id==='london-239'?'':plan.goal):candidate.goal);
+  const raceDate=setup?.raceDate||candidate.raceDate||plan.raceDate||'';
+  const sheet=openWorkflow('Review your plan',`<p>${candidate.sessions.length} sessions. Check your dates before saving.</p><label class="field">Plan name<input id="importName" value="${escapeHTML(candidate.name)}"></label><label class="field">Marathon<input id="importRace" value="${escapeHTML(race)}"></label><label class="field">Goal time (optional)<input id="importGoal" placeholder="e.g. 3:30:00" value="${escapeHTML(goal==='No time goal'?'':goal)}"></label><label class="field">Marathon date<input id="importRaceDate" type="date" value="${escapeHTML(raceDate)}"></label><label class="field">Plan length (weeks)<input id="importWeeks" type="number" min="${Math.max(...candidate.sessions.map(s=>s.week))}" max="52" step="1" value="${candidate.weeks}"></label><label class="field">Plan start date<input id="importStart" type="date" value="${candidate.startDate||''}" ${raceDate?'readonly':''}></label><label class="schedule-override"><input id="manualPlanStart" type="checkbox" ${raceDate?'':'checked'}> Choose a different start date</label><p class="muted-copy" id="importSchedule" aria-live="polite"></p><section class="card" id="importWeekPreview"></section><p class="muted-copy">Saving replaces your plan and clears its reviews. Your runs stay available. Download a backup first to keep the current build.</p><button class="primary full" id="confirmPlan">Use this plan</button>`);
+  function refresh(){
+    const weeks=Number(document.getElementById('importWeeks').value),date=document.getElementById('importRaceDate').value,manual=document.getElementById('manualPlanStart').checked;
+    const start=document.getElementById('importStart');start.readOnly=!!date&&!manual;
+    try{
+      if(date&&!manual){start.value=BuildSetup.schedule(date,weeks).startDate;}
+      document.getElementById('importSchedule').textContent=date&&!manual?`A ${weeks}-week build starts on ${start.value} and ends on race day, ${date}.`:date?'Using your chosen start date. Check that your final training week fits race day.':'Choose a race date to calculate the start automatically.';
+      if(!Number.isInteger(weeks)||weeks<1||weeks>52)throw Error('Choose 1–52 whole weeks.');
+      document.getElementById('importWeekPreview').innerHTML=Array.from({length:weeks},(_,i)=>{const sessions=candidate.sessions.filter(s=>s.week===i+1),km=sessions.filter(s=>!['strength','cross'].includes(s.type)).reduce((n,s)=>n+(s.distanceKm||0),0);return `<details><summary>Week ${i+1} · ${sessions.length} sessions · ${km.toFixed(1)} km</summary>${sessions.map(s=>`<p>${escapeHTML(s.day)} · ${escapeHTML(s.title)}<br><small>${escapeHTML(s.target||'No target supplied')}</small></p>`).join('')||'<p>No sessions supplied.</p>'}</details>`}).join('');
+    }catch(error){document.getElementById('importSchedule').textContent=error.message;}
+  }
+  for(const id of ['importWeeks','importRaceDate','manualPlanStart'])document.getElementById(id).onchange=refresh;refresh();
   document.getElementById('confirmPlan').onclick=()=>{
     try{
-      const next=BuildData.plan({...candidate,name:document.getElementById('importName').value,race:document.getElementById('importRace').value,goal:document.getElementById('importGoal').value,startDate:document.getElementById('importStart').value});
-      const previous={plan,assessments,profile};plan=next;assessments={};profile={...profile,onboarded:true};
+      const dates=document.getElementById('importRaceDate').value&&!document.getElementById('manualPlanStart').checked?BuildSetup.schedule(document.getElementById('importRaceDate').value,document.getElementById('importWeeks').value):{weeks:Number(document.getElementById('importWeeks').value),raceDate:document.getElementById('importRaceDate').value,startDate:document.getElementById('importStart').value};
+      const next=BuildData.plan({...candidate,...dates,name:document.getElementById('importName').value,race:document.getElementById('importRace').value,goal:document.getElementById('importGoal').value.trim()||'No time goal'});
+      const previous={plan,assessments,profile};plan=next;assessments={};profile={...profile,onboarded:true};delete profile.setupDraft;
       try{save()}catch(error){({plan,assessments,profile}=previous);throw error}
-      state.week=BuildCalendar.currentWeek(plan);state.screen='plan';state.selected=null;state.activity=null;sheet.remove();render();notify(`${plan.sessions.length} sessions imported. Your build is ready.`);
+      state.setup=null;state.builderDraft=null;state.week=BuildCalendar.currentWeek(plan);state.screen='plan';state.selected=null;state.activity=null;sheet.remove();render();notify('Your plan is ready.');
     }catch(error){notify(error.message)}
   };
 }
@@ -75,7 +91,10 @@ function manualActivity(){
 function bindWorkflows(){
   const bind=(id,fn)=>{const e=document.getElementById(id);if(e)e.onclick=fn};
   bind('manualActivity',manualActivity);bind('onboardImport',choosePlan);bind('importPlan',choosePlan);
+  bind('onboardCreate',()=>openPlanBuilder());
+  bind('onboardExample',()=>previewPlan({...structuredClone(defaultPlan),...(state.setup||profile.setupDraft||{})}));
   const ip=document.getElementById('importPlan');if(ip)ip.textContent='Import a plan';
+  if(ip&&!document.getElementById('createPlan')){const b=document.createElement('button');b.id='createPlan';b.className='secondary full';b.textContent='Create a plan';b.onclick=()=>openPlanBuilder();ip.after(b);}
   bind('exportBackup',()=>downloadJSON(`BUILD-backup-${new Date().toISOString().slice(0,10)}.json`,{format:'BUILD_BACKUP',version:1,exportedAt:new Date().toISOString(),plan,assessments,activities,profile}));
   bind('restoreBackup',()=>document.getElementById('backupFileInput').click());
 }
