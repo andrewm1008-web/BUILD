@@ -60,3 +60,42 @@ test('service worker ignores API, OAuth and third-party requests',()=>{
     assert.equal(intercepted,false,url);
   }
 });
+
+function matchingApp(){
+  const run=app();
+  run("plan={startDate:'2027-02-01',weeks:2,sessions:[{week:1,day:'Mon',title:'Easy run',type:'easy',distanceKm:12},{week:1,day:'Sat',title:'Easy Saturday',type:'easy',distanceKm:10}]};assessments={};activities=[]");
+  return run;
+}
+test('Strava sync automatically links a same-day run without writing a review',()=>{
+  const run=matchingApp();
+  run("activities=[{id:'1',source:'strava-api',name:'Lunch run',date:'2027-02-01',distanceKm:10}]");
+  assert.equal(run("automaticMatches().get('1')"),'1|Mon|Easy run');
+  assert.equal(run('Object.keys(assessments).length'),0);
+  assert.ok(run('sessionRow(plan.sessions[0])').includes('Auto-matched · 10.0 km'));
+  assert.equal(run('weekStats(1).distance'),10);
+  assert.equal(run('weekStats(1).score'),null);
+});
+test('matching handles reduced distance, a moved day, and repeated sync deterministically',()=>{
+  const run=matchingApp();
+  run("activities=[{id:'short',source:'strava-api',date:'2027-02-01',distanceKm:1,name:'Run'},{id:'moved',source:'strava-api',date:'2027-02-07',distanceKm:10,name:'Run'}]");
+  assert.equal(run("automaticMatches().get('short')"),'1|Mon|Easy run');
+  assert.equal(run("automaticMatches().get('moved')"),'1|Sat|Easy Saturday');
+  assert.equal(run("automaticMatches().size"),2);
+  assert.equal(run("automaticMatches().size"),2);
+});
+test('ambiguous sessions or competing runs stay unresolved and reviews are protected',()=>{
+  const run=matchingApp();
+  run("activities=[{id:'1',source:'strava-api',date:'2027-02-01',distanceKm:12},{id:'2',source:'strava-api',date:'2027-02-01',distanceKm:12}]");
+  assert.equal(run('automaticMatches().size'),0);
+  run("activities.pop();plan.sessions.push({...plan.sessions[0],title:'Second run'})");
+  assert.equal(run('automaticMatches().size'),0);
+  run("plan.sessions.pop();assessments[skey(plan.sessions[0])]={score:100,activityId:'existing'}");
+  assert.equal(run('automaticMatches().size'),0);
+});
+test('undated plans, unrelated historical runs and non-Strava activities are not auto-linked',()=>{
+  const run=matchingApp();
+  run("activities=[{id:'1',source:'strava-api',date:'2026-01-01',distanceKm:12},{id:'2',source:'manual',date:'2027-02-01',distanceKm:12}]");
+  assert.equal(run('automaticMatches().size'),0);
+  run("activities=[{id:'1',source:'strava-api',date:'2027-02-01',distanceKm:12}];plan.startDate=''");
+  assert.equal(run('automaticMatches().size'),0);
+});

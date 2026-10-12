@@ -1,4 +1,12 @@
-# BUILD v0.7.0
+# BUILD v0.8.0
+
+## Version 0.8.0
+
+The interface now uses dark graphite surfaces and restrained cyan accents across Today, Plan, Progress, Activity and Settings. Today leads with the scheduled session, latest run, planned-versus-actual comparison and one review action. Scores and forecast explanations live in Progress. Clear Strava matches appear automatically; scores still require an explicit review.
+
+Buttons highlight and enlarge slightly on devices with a mouse. Touch devices receive press feedback. Keyboard focus remains visible, and reduced-motion settings disable scaling. The existing plan, activity and review storage keys are unchanged.
+
+The 31 Node regression tests and static production build pass. Browser verification of this redesign is pending; the local browser action was blocked by automatic approval review.
 
 BUILD is a mobile-first marathon plan companion. Bring an existing plan, match completed runs, and review how well each session delivered its purpose.
 
@@ -6,11 +14,11 @@ BUILD is a mobile-first marathon plan companion. Bring an existing plan, match c
 
 - Guided onboarding with CSV or JSON plan import, plus a clearly labelled example build.
 - Plan import validation and a preview before replacing the current plan. Invalid files leave the current build untouched.
-- Today, Plan, Progress, Activity and Settings screens in cream, navy and racing green.
+- Today, Plan, Progress, Activity and Settings screens in dark graphite and cyan.
 - Calendar-aware weeks and Sunday matching, with manual week selection for undated plans.
 - Activity CSV import with explicit distance units, a preview, non-running activity filtering and duplicate detection.
 - Manual run entry and optional distance, time, effort and notes in a session review.
-- Suggested matches and a full session selector. Matching opens a review; it does not award an automatic score.
+- Automatic Strava matching to dated planned sessions, with a full session selector for corrections. Clear same-day matches and close-distance runs shifted by one day appear on the plan immediately; ambiguous runs stay available for manual matching. Matching does not award an automatic score.
 - Explicit review saving, editable assessment history and assessment removal to correct a match.
 - Contribution-weighted progress with priority for long runs, marathon-specific work, intervals, then threshold and supporting sessions.
 - Forecast suppression until there is sufficient evidence. Forecast describes plan execution, not a predicted finish time or probability of a marathon goal.
