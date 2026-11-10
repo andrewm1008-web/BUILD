@@ -1,6 +1,6 @@
 function forecastExplanation(){return ""}
-const VERSION='0.12.1';
-const IMPACT={long:1,marathon:.94,threshold:.80,interval:.86,easy:.36,strength:.28,recovery:.20,cross:.22};
+const VERSION='0.17.0-preview';
+const IMPACT={long:1,marathon:.94,threshold:.80,interval:.86,easy:.36,strength:.28,recovery:.20,cross:.22,steady:.4,race:0,rest:0};
 const SCORES={nailed:100,mostly:84,modified:58,missed:15};
 const SCORE_LABEL={100:'Nailed it',84:'Mostly',58:'Modified',15:'Missed'};
 
@@ -60,8 +60,8 @@ const escapeHTML=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;'
 const skey=s=>`${s.week}|${s.day}|${s.title}`;
 const assessed=s=>assessments[skey(s)];
 const impact=s=>IMPACT[s.type]??.4;
-const typeName=t=>({long:'Long run',marathon:'Marathon pace',threshold:'Threshold',interval:'Intervals',easy:'Easy',strength:'Strength',recovery:'Recovery',cross:'Cross-training'})[t]||'Session';
-const typeInitial=t=>({long:'L',marathon:'M',threshold:'T',interval:'I',easy:'E',strength:'S',recovery:'R',cross:'C'})[t]||'•';
+const typeName=t=>({long:'Long run',marathon:'Marathon pace',threshold:'Threshold',interval:'Intervals',easy:'Easy',strength:'Strength',recovery:'Recovery',cross:'Cross-training',steady:'Steady',race:'Race day',rest:'Rest / optional recovery'})[t]||'Session';
+const typeInitial=t=>({long:'L',marathon:'M',threshold:'T',interval:'I',easy:'E',strength:'S',recovery:'R',cross:'C',steady:'ST',race:'RACE',rest:'—'})[t]||'•';
 function save(){
   const values={'build.plan':plan,'build.assessments':assessments,'build.activities':activities,'build.profile':profile};
   const before=Object.fromEntries(Object.keys(values).map(k=>[k,localStorage.getItem(k)]));
@@ -88,7 +88,7 @@ function metrics(){
   return {progress,quality,forecast,confidence,coverage,assessedCount,dueCount:due.length,recentAvg:Math.round(recentAvg)};
 }
 function weekStats(week){
-  const ss=plan.sessions.filter(s=>s.week===week), done=ss.filter(assessed);
+  const ss=plan.sessions.filter(s=>s.week===week), done=ss.filter(s=>impact(s)>0&&assessed(s));
   const auto=automaticMatches();
   const distance=ss.reduce((total,s)=>{const a=assessed(s);if(a&&a.score<=20)return total;const recorded=a?.actualDistanceKm??activities.find(x=>a?.activityId?x.id===a.activityId:auto.get(x.id)===skey(s))?.distanceKm;return total+(Number.isFinite(recorded)&&recorded>=0?recorded:0)},0);
   const score=done.length?Math.round(done.reduce((a,s)=>a+assessed(s).score*impact(s),0)/done.reduce((a,s)=>a+impact(s),0)):null;
@@ -101,7 +101,7 @@ function statusCopy(m){
   return {tone:'risk',label:'Needs attention',text:'Recent execution is pulling the build down. Protect recovery, then re-establish the key sessions.'};
 }
 function upcomingSessions(date=BuildCalendar.today()){const linked=new Set(automaticMatches().values());return BuildCalendar.upcoming(plan,date).filter(s=>!assessed(s)&&!linked.has(skey(s)))}
-function nextPlannedRun(date=BuildCalendar.today()){return upcomingSessions(date).find(s=>!['strength','cross'].includes(s.type));}
+function nextPlannedRun(date=BuildCalendar.today()){return upcomingSessions(date).find(s=>!['strength','cross','rest'].includes(s.type));}
 function nextKey(){return nextPlannedRun();}
 function plannedRunDate(session){const date=estimatedSessionDate(session);return date?new Date(`${date}T12:00:00Z`).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}):`Week ${session.week} · ${session.day}`;}
 function coachingInsight(){
@@ -183,7 +183,7 @@ function sessionSheet(s){
 }
 function activitySheet(a){
   const candidates=rankMatches(a).slice(0,3);
-  const available=plan.sessions.filter(s=>!['strength','cross'].includes(s.type)&&(!assessed(s)||assessed(s).activityId===a.id));
+  const available=plan.sessions.filter(s=>!['strength','cross','rest'].includes(s.type)&&(!assessed(s)||assessed(s).activityId===a.id));
   return `<div class="sheet" role="dialog" aria-modal="true" aria-label="Match activity"><div class="panel"><div class="handle"></div><div class="eyebrow">Imported activity</div><h2>${escapeHTML(a.name||'Run')}</h2><div class="actual-block"><strong>${a.distanceKm.toFixed(1)} km</strong><span>${formatDuration(a.movingSeconds)} · ${escapeHTML(a.date||'No date')} · ${formatPace(a.movingSeconds,a.distanceKm)}</span></div><div class="question"><span>Which planned session was this?</span><div class="match-list">${candidates.length?candidates.map(s=>`<button data-match="${encodeURIComponent(skey(s))}"><span><b>${escapeHTML(s.title)}</b><small>Week ${s.week} · ${escapeHTML(s.day)} · ${s.distanceKm??'—'} km${estimatedSessionDate(s)?` · ${estimatedSessionDate(s)}`:''}</small></span><em>Review ›</em></button>`).join(''):'<p class="empty">No close match found. Choose a session below or keep this as an unplanned run.</p>'}</div></div><label class="field">Choose another session<select id="otherMatch"><option value="">Select a planned session</option>${available.map(s=>`<option value="${escapeHTML(skey(s))}">W${s.week} ${escapeHTML(s.day)} · ${escapeHTML(s.title)}</option>`).join('')}</select></label><button class="secondary full" id="chooseOtherMatch">Review selected session</button><button class="text-btn" id="deleteActivity">Delete this activity</button><button class="text-btn" data-close>Keep unmatched</button></div></div>`;
 }
 function render(){
@@ -204,7 +204,7 @@ function bind(){
   const other=document.getElementById('chooseOtherMatch');if(other)other.onclick=()=>beginMatch(document.getElementById('otherMatch').value);
   const review=document.getElementById('saveReview');if(review)review.onclick=saveReview;
   const remove=document.getElementById('removeReview');if(remove)remove.onclick=()=>{if(!confirm('Remove this assessment? Any matched run returns to your activity inbox.'))return;const key=skey(state.selected),old=assessments[key];delete assessments[key];try{save();closeSheet();notify('Assessment removed.')}catch(e){assessments[key]=old;notify(e.message)}};
-  const deleteRun=document.getElementById('deleteActivity');if(deleteRun)deleteRun.onclick=()=>{if(!confirm('Delete this activity from BUILD?'))return;const old=activities;activities=activities.filter(a=>a.id!==state.activity.id);try{save();closeSheet();notify('Activity deleted.')}catch(e){activities=old;notify(e.message)}};
+  const deleteRun=document.getElementById('deleteActivity');if(deleteRun)deleteRun.onclick=()=>{if(!confirm('Remove this run and any linked review from BUILD? The original Strava activity stays unchanged.'))return;const old=activities,oldAssessments=assessments,id=state.activity.id;activities=activities.filter(a=>a.id!==id);assessments=Object.fromEntries(Object.entries(assessments).filter(([,a])=>a.activityId!==id));try{save();closeSheet();notify('Run removed from BUILD.')}catch(e){activities=old;assessments=oldAssessments;notify(e.message)}};
   document.querySelectorAll('[data-onboard-next]').forEach(b=>b.onclick=()=>{if(state.onboardStep===1){try{const setup=BuildSetup.goal({race:document.getElementById('raceInput').value,goal:document.getElementById('goalInput').value,raceDate:document.getElementById('raceDateInput').value});const old=profile;profile={...profile,setupDraft:setup};try{save()}catch(error){profile=old;throw error}state.setup=setup;}catch(error){notify(error.message);return}}state.onboardStep++;render()});
   const finish=document.querySelector('[data-onboard-finish]');if(finish)finish.onclick=()=>{profile.onboarded=true;save();state.screen='today';render()};
   const ip=document.getElementById('importPlan');if(ip)ip.onclick=()=>document.getElementById('planFileInput').click();
@@ -228,14 +228,14 @@ function matchScore(a,s){
   if(s.type==='marathon'&&(name.includes('marathon')||name.includes('mp')))semantic=.9;
   return Math.round(100*(dist*.5+dp*.25+semantic*.25));
 }
-function rankMatches(a){return plan.sessions.filter(s=>!['strength','cross'].includes(s.type)&&(!assessed(s)||assessed(s).activityId===a.id)).map(s=>[s,matchScore(a,s)]).filter(x=>x[1]>=45||(a.date&&estimatedSessionDate(x[0])===a.date)).sort((x,y)=>Number(Boolean(a.date)&&estimatedSessionDate(y[0])===a.date)-Number(Boolean(a.date)&&estimatedSessionDate(x[0])===a.date)||y[1]-x[1]).map(x=>x[0])}
+function rankMatches(a){return plan.sessions.filter(s=>!['strength','cross','rest'].includes(s.type)&&(!assessed(s)||assessed(s).activityId===a.id)).map(s=>[s,matchScore(a,s)]).filter(x=>x[1]>=45||(a.date&&estimatedSessionDate(x[0])===a.date)).sort((x,y)=>Number(Boolean(a.date)&&estimatedSessionDate(y[0])===a.date)-Number(Boolean(a.date)&&estimatedSessionDate(x[0])===a.date)||y[1]-x[1]).map(x=>x[0])}
 // Link clear Strava matches to the plan without inventing a review or score.
 // Recomputed from local data so imports, date edits and removed reviews stay consistent.
 function automaticMatches(){
   const result=new Map(),occupied=new Set(Object.keys(assessments));
   const reviewed=new Set(Object.values(assessments).map(a=>a.activityId));
   const runs=activities.filter(a=>a.source==='strava-api'&&a.date&&!reviewed.has(a.id));
-  const sessions=plan.sessions.filter(s=>!['strength','cross'].includes(s.type)&&!occupied.has(skey(s))&&estimatedSessionDate(s));
+  const sessions=plan.sessions.filter(s=>!['strength','cross','rest'].includes(s.type)&&!occupied.has(skey(s))&&estimatedSessionDate(s));
   const proposals=[];
   for(const run of runs){
     const sameDay=sessions.filter(s=>estimatedSessionDate(s)===run.date);

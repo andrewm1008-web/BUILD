@@ -1,0 +1,743 @@
+{
+  "id": "andrew-london-240-12wk",
+  "name": "Sub-2:40 London Marathon Build",
+  "race": "London Marathon",
+  "goal": "2:39:59",
+  "weeks": 12,
+  "currentWeek": 1,
+  "sessions": [
+    {
+      "week": 1,
+      "day": "Mon",
+      "type": "easy",
+      "title": "10-12 km easy + Strength A",
+      "target": "Cap 160bpm · 4:35-5:00/km",
+      "objective": "Start the block with controlled quality and a moderate long run. Aerobic long run only.",
+      "distanceKm": 11.0
+    },
+    {
+      "week": 1,
+      "day": "Tue",
+      "type": "interval",
+      "title": "6 x 1 km at 10K effort",
+      "target": "3:28-3:33/km, 90s jog recovery",
+      "objective": "Start the block with controlled quality and a moderate long run. Aerobic long run only."
+    },
+    {
+      "week": 1,
+      "day": "Wed",
+      "type": "easy",
+      "title": "14 km easy",
+      "target": "Cap 160bpm · 4:35-5:00/km — highest-risk easy day, sits between two quality sessions",
+      "objective": "Start the block with controlled quality and a moderate long run. Aerobic long run only.",
+      "distanceKm": 14.0
+    },
+    {
+      "week": 1,
+      "day": "Thu",
+      "type": "threshold",
+      "title": "3 x 10 min threshold",
+      "target": "3:40-3:55/km, 2-3min recovery",
+      "objective": "Start the block with controlled quality and a moderate long run. Aerobic long run only."
+    },
+    {
+      "week": 1,
+      "day": "Fri",
+      "type": "easy",
+      "title": "8-10 km easy + Strength B",
+      "target": "Cap 160bpm · 4:35-5:00/km",
+      "objective": "Start the block with controlled quality and a moderate long run. Aerobic long run only.",
+      "distanceKm": 9.0
+    },
+    {
+      "week": 1,
+      "day": "Sat",
+      "type": "easy",
+      "title": "10 km easy + strides",
+      "target": "Cap 160bpm, 4x100m strides at the end, not a workout",
+      "objective": "Start the block with controlled quality and a moderate long run. Aerobic long run only.",
+      "distanceKm": 10.0
+    },
+    {
+      "week": 1,
+      "day": "Sun",
+      "type": "long",
+      "title": "24-26 km easy long run",
+      "target": "Cap 160bpm · 4:35-5:00/km throughout",
+      "objective": "Start the block with controlled quality and a moderate long run. Aerobic long run only.",
+      "distanceKm": 25.0
+    },
+    {
+      "week": 2,
+      "day": "Mon",
+      "type": "easy",
+      "title": "10-12 km easy + Strength A",
+      "target": "Cap 160bpm",
+      "objective": "Increase load while preserving freshness. First controlled finish.",
+      "distanceKm": 11.0
+    },
+    {
+      "week": 2,
+      "day": "Tue",
+      "type": "interval",
+      "title": "5 x 1200 m at 10K effort",
+      "target": "3:28-3:33/km, 2min jog recovery",
+      "objective": "Increase load while preserving freshness. First controlled finish."
+    },
+    {
+      "week": 2,
+      "day": "Wed",
+      "type": "easy",
+      "title": "14-16 km easy",
+      "target": "Cap 160bpm — discipline matters most here",
+      "objective": "Increase load while preserving freshness. First controlled finish.",
+      "distanceKm": 15.0
+    },
+    {
+      "week": 2,
+      "day": "Thu",
+      "type": "threshold",
+      "title": "2 x 15 min threshold",
+      "target": "3:40-3:55/km, 3min recovery",
+      "objective": "Increase load while preserving freshness. First controlled finish."
+    },
+    {
+      "week": 2,
+      "day": "Fri",
+      "type": "easy",
+      "title": "8-10 km easy + Strength B",
+      "target": "Cap 160bpm",
+      "objective": "Increase load while preserving freshness. First controlled finish.",
+      "distanceKm": 9.0
+    },
+    {
+      "week": 2,
+      "day": "Sat",
+      "type": "easy",
+      "title": "12 km steady",
+      "target": "4:00-4:15/km",
+      "objective": "Increase load while preserving freshness. First controlled finish.",
+      "distanceKm": 12.0
+    },
+    {
+      "week": 2,
+      "day": "Sun",
+      "type": "long",
+      "title": "26-28 km with last 20 min steady",
+      "target": "Easy 4:35-5:00/km, final 20min at 4:00-4:15/km",
+      "objective": "Increase load while preserving freshness. First controlled finish.",
+      "distanceKm": 27.0
+    },
+    {
+      "week": 3,
+      "day": "Mon",
+      "type": "easy",
+      "title": "10-12 km easy + Strength A",
+      "target": "Cap 160bpm",
+      "objective": "Build fatigue resistance before the first recovery week. Late-run strength.",
+      "distanceKm": 11.0
+    },
+    {
+      "week": 3,
+      "day": "Tue",
+      "type": "interval",
+      "title": "8 x 800 m at 5K-10K effort",
+      "target": "3:20-3:33/km, 2min jog recovery",
+      "objective": "Build fatigue resistance before the first recovery week. Late-run strength."
+    },
+    {
+      "week": 3,
+      "day": "Wed",
+      "type": "easy",
+      "title": "16 km easy",
+      "target": "Cap 160bpm — longest midweek easy run of the block so far",
+      "objective": "Build fatigue resistance before the first recovery week. Late-run strength.",
+      "distanceKm": 16.0
+    },
+    {
+      "week": 3,
+      "day": "Thu",
+      "type": "threshold",
+      "title": "4 x 8 min threshold",
+      "target": "3:40-3:55/km, 2min recovery",
+      "objective": "Build fatigue resistance before the first recovery week. Late-run strength."
+    },
+    {
+      "week": 3,
+      "day": "Fri",
+      "type": "easy",
+      "title": "8-10 km easy + Strength B",
+      "target": "Cap 160bpm",
+      "objective": "Build fatigue resistance before the first recovery week. Late-run strength.",
+      "distanceKm": 9.0
+    },
+    {
+      "week": 3,
+      "day": "Sat",
+      "type": "easy",
+      "title": "10 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Build fatigue resistance before the first recovery week. Late-run strength.",
+      "distanceKm": 10.0
+    },
+    {
+      "week": 3,
+      "day": "Sun",
+      "type": "long",
+      "title": "28-30 km with final 5 km steady",
+      "target": "Easy 4:35-5:00/km, final 5km at 4:00-4:15/km",
+      "objective": "Build fatigue resistance before the first recovery week. Late-run strength.",
+      "distanceKm": 29.0
+    },
+    {
+      "week": 4,
+      "day": "Mon",
+      "type": "easy",
+      "title": "8-10 km easy + reduced Strength A",
+      "target": "Cap 160bpm",
+      "objective": "Deload so adaptation can catch up. True cutback week.",
+      "distanceKm": 9.0
+    },
+    {
+      "week": 4,
+      "day": "Tue",
+      "type": "interval",
+      "title": "6 x 1 km controlled",
+      "target": "3:35-3:45/km — easier than full 10K effort, this is a controlled week",
+      "objective": "Deload so adaptation can catch up. True cutback week."
+    },
+    {
+      "week": 4,
+      "day": "Wed",
+      "type": "easy",
+      "title": "12 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Deload so adaptation can catch up. True cutback week.",
+      "distanceKm": 12.0
+    },
+    {
+      "week": 4,
+      "day": "Thu",
+      "type": "threshold",
+      "title": "20 min threshold max",
+      "target": "3:40-3:55/km, single continuous block",
+      "objective": "Deload so adaptation can catch up. True cutback week."
+    },
+    {
+      "week": 4,
+      "day": "Fri",
+      "type": "easy",
+      "title": "8 km easy + reduced Strength B",
+      "target": "Cap 160bpm",
+      "objective": "Deload so adaptation can catch up. True cutback week.",
+      "distanceKm": 8.0
+    },
+    {
+      "week": 4,
+      "day": "Sat",
+      "type": "easy",
+      "title": "8-10 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Deload so adaptation can catch up. True cutback week.",
+      "distanceKm": 9.0
+    },
+    {
+      "week": 4,
+      "day": "Sun",
+      "type": "long",
+      "title": "20-22 km easy long run",
+      "target": "Cap 160bpm throughout — no hard finish this week",
+      "objective": "Deload so adaptation can catch up. True cutback week.",
+      "distanceKm": 21.0
+    },
+    {
+      "week": 5,
+      "day": "Mon",
+      "type": "easy",
+      "title": "10-12 km easy + Strength A",
+      "target": "Cap 160bpm",
+      "objective": "Rebuild from the recovery week and add marathon pace. First serious marathon-pace long run.",
+      "distanceKm": 11.0
+    },
+    {
+      "week": 5,
+      "day": "Tue",
+      "type": "interval",
+      "title": "5 x 1600 m controlled interval",
+      "target": "3:35-3:45/km, 2-3min recovery",
+      "objective": "Rebuild from the recovery week and add marathon pace. First serious marathon-pace long run."
+    },
+    {
+      "week": 5,
+      "day": "Wed",
+      "type": "easy",
+      "title": "14-16 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Rebuild from the recovery week and add marathon pace. First serious marathon-pace long run.",
+      "distanceKm": 15.0
+    },
+    {
+      "week": 5,
+      "day": "Thu",
+      "type": "threshold",
+      "title": "3 x 12 min threshold",
+      "target": "3:40-3:55/km, 2-3min recovery",
+      "objective": "Rebuild from the recovery week and add marathon pace. First serious marathon-pace long run."
+    },
+    {
+      "week": 5,
+      "day": "Fri",
+      "type": "easy",
+      "title": "8-10 km easy + Strength B",
+      "target": "Cap 160bpm",
+      "objective": "Rebuild from the recovery week and add marathon pace. First serious marathon-pace long run.",
+      "distanceKm": 9.0
+    },
+    {
+      "week": 5,
+      "day": "Sat",
+      "type": "easy",
+      "title": "10-12 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Rebuild from the recovery week and add marathon pace. First serious marathon-pace long run.",
+      "distanceKm": 11.0
+    },
+    {
+      "week": 5,
+      "day": "Sun",
+      "type": "long",
+      "title": "30-32 km with 2 x 5 km at marathon pace",
+      "target": "Easy 4:35-5:00/km, MP segments at 3:47/km with 2-3km easy between",
+      "objective": "Rebuild from the recovery week and add marathon pace. First serious marathon-pace long run.",
+      "distanceKm": 31.0
+    },
+    {
+      "week": 6,
+      "day": "Mon",
+      "type": "easy",
+      "title": "10-12 km easy + Strength A",
+      "target": "Cap 160bpm",
+      "objective": "Blend threshold and closing strength. Close stronger without forcing it.",
+      "distanceKm": 11.0
+    },
+    {
+      "week": 6,
+      "day": "Tue",
+      "type": "interval",
+      "title": "10 x 600 m interval",
+      "target": "3:20-3:28/km, 90s-2min recovery",
+      "objective": "Blend threshold and closing strength. Close stronger without forcing it."
+    },
+    {
+      "week": 6,
+      "day": "Wed",
+      "type": "easy",
+      "title": "16 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Blend threshold and closing strength. Close stronger without forcing it.",
+      "distanceKm": 16.0
+    },
+    {
+      "week": 6,
+      "day": "Thu",
+      "type": "threshold",
+      "title": "2 x 20 min threshold",
+      "target": "3:40-3:55/km, 3min recovery",
+      "objective": "Blend threshold and closing strength. Close stronger without forcing it."
+    },
+    {
+      "week": 6,
+      "day": "Fri",
+      "type": "easy",
+      "title": "8-10 km easy + Strength B",
+      "target": "Cap 160bpm",
+      "objective": "Blend threshold and closing strength. Close stronger without forcing it.",
+      "distanceKm": 9.0
+    },
+    {
+      "week": 6,
+      "day": "Sat",
+      "type": "easy",
+      "title": "14 km steady",
+      "target": "4:00-4:15/km",
+      "objective": "Blend threshold and closing strength. Close stronger without forcing it.",
+      "distanceKm": 14.0
+    },
+    {
+      "week": 6,
+      "day": "Sun",
+      "type": "long",
+      "title": "30-32 km with final 8 km steady to marathon pace",
+      "target": "Easy 4:35-5:00/km, final 8km progressing 4:00/km down to 3:47/km",
+      "objective": "Blend threshold and closing strength. Close stronger without forcing it.",
+      "distanceKm": 31.0
+    },
+    {
+      "week": 7,
+      "day": "Mon",
+      "type": "easy",
+      "title": "10 km easy + Strength A reduced volume",
+      "target": "Cap 160bpm",
+      "objective": "Reach the first large marathon-specific week. Headline long run.",
+      "distanceKm": 10.0
+    },
+    {
+      "week": 7,
+      "day": "Tue",
+      "type": "interval",
+      "title": "6 x 1 km interval",
+      "target": "3:28-3:33/km, 90s recovery",
+      "objective": "Reach the first large marathon-specific week. Headline long run."
+    },
+    {
+      "week": 7,
+      "day": "Wed",
+      "type": "easy",
+      "title": "14-16 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Reach the first large marathon-specific week. Headline long run.",
+      "distanceKm": 15.0
+    },
+    {
+      "week": 7,
+      "day": "Thu",
+      "type": "marathon",
+      "title": "3 x 5 km at marathon pace",
+      "target": "3:47/km, 3-4min recovery — threshold slot now replaced by race pace",
+      "objective": "Reach the first large marathon-specific week. Headline long run."
+    },
+    {
+      "week": 7,
+      "day": "Fri",
+      "type": "easy",
+      "title": "8-10 km easy + Strength B reduced volume",
+      "target": "Cap 160bpm",
+      "objective": "Reach the first large marathon-specific week. Headline long run.",
+      "distanceKm": 9.0
+    },
+    {
+      "week": 7,
+      "day": "Sat",
+      "type": "easy",
+      "title": "10 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Reach the first large marathon-specific week. Headline long run.",
+      "distanceKm": 10.0
+    },
+    {
+      "week": 7,
+      "day": "Sun",
+      "type": "long",
+      "title": "32 km with last 10 km at marathon pace",
+      "target": "Easy 4:35-5:00/km, final 10km at 3:47/km — headline session of the block",
+      "objective": "Reach the first large marathon-specific week. Headline long run.",
+      "distanceKm": 32.0
+    },
+    {
+      "week": 8,
+      "day": "Mon",
+      "type": "easy",
+      "title": "8-10 km easy + reduced Strength A",
+      "target": "Cap 160bpm",
+      "objective": "A second true deload to reduce injury risk and absorb the peak block. Real recovery, not a light build week.",
+      "distanceKm": 9.0
+    },
+    {
+      "week": 8,
+      "day": "Tue",
+      "type": "interval",
+      "title": "4 x 1 km controlled",
+      "target": "3:35-3:45/km, easy recovery",
+      "objective": "A second true deload to reduce injury risk and absorb the peak block. Real recovery, not a light build week."
+    },
+    {
+      "week": 8,
+      "day": "Wed",
+      "type": "easy",
+      "title": "12-14 km easy",
+      "target": "Cap 160bpm",
+      "objective": "A second true deload to reduce injury risk and absorb the peak block. Real recovery, not a light build week.",
+      "distanceKm": 13.0
+    },
+    {
+      "week": 8,
+      "day": "Thu",
+      "type": "threshold",
+      "title": "2 x 10 min threshold",
+      "target": "3:40-3:55/km, 3min recovery",
+      "objective": "A second true deload to reduce injury risk and absorb the peak block. Real recovery, not a light build week."
+    },
+    {
+      "week": 8,
+      "day": "Fri",
+      "type": "easy",
+      "title": "8 km easy + reduced Strength B",
+      "target": "Cap 160bpm",
+      "objective": "A second true deload to reduce injury risk and absorb the peak block. Real recovery, not a light build week.",
+      "distanceKm": 8.0
+    },
+    {
+      "week": 8,
+      "day": "Sat",
+      "type": "easy",
+      "title": "8-10 km easy",
+      "target": "Cap 160bpm",
+      "objective": "A second true deload to reduce injury risk and absorb the peak block. Real recovery, not a light build week.",
+      "distanceKm": 9.0
+    },
+    {
+      "week": 8,
+      "day": "Sun",
+      "type": "long",
+      "title": "22-24 km easy with no hard finish",
+      "target": "Cap 160bpm throughout — genuine recovery, not a light build",
+      "objective": "A second true deload to reduce injury risk and absorb the peak block. Real recovery, not a light build week.",
+      "distanceKm": 23.0
+    },
+    {
+      "week": 9,
+      "day": "Mon",
+      "type": "easy",
+      "title": "10 km easy + Strength A at maintenance volume",
+      "target": "Cap 160bpm",
+      "objective": "Return to specificity without stacking too much fatigue. Specific but controlled.",
+      "distanceKm": 10.0
+    },
+    {
+      "week": 9,
+      "day": "Tue",
+      "type": "interval",
+      "title": "5 x 1200 m interval",
+      "target": "3:28-3:33/km, 2min recovery",
+      "objective": "Return to specificity without stacking too much fatigue. Specific but controlled."
+    },
+    {
+      "week": 9,
+      "day": "Wed",
+      "type": "easy",
+      "title": "14 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Return to specificity without stacking too much fatigue. Specific but controlled.",
+      "distanceKm": 14.0
+    },
+    {
+      "week": 9,
+      "day": "Thu",
+      "type": "marathon",
+      "title": "2 x 6 km at marathon pace",
+      "target": "3:47/km, 3min recovery",
+      "objective": "Return to specificity without stacking too much fatigue. Specific but controlled."
+    },
+    {
+      "week": 9,
+      "day": "Fri",
+      "type": "easy",
+      "title": "8 km easy + Strength B at maintenance volume",
+      "target": "Cap 160bpm",
+      "objective": "Return to specificity without stacking too much fatigue. Specific but controlled.",
+      "distanceKm": 8.0
+    },
+    {
+      "week": 9,
+      "day": "Sat",
+      "type": "easy",
+      "title": "10 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Return to specificity without stacking too much fatigue. Specific but controlled.",
+      "distanceKm": 10.0
+    },
+    {
+      "week": 9,
+      "day": "Sun",
+      "type": "long",
+      "title": "28-30 km with 10-12 km at marathon pace",
+      "target": "Easy 4:35-5:00/km, MP block at 3:47/km",
+      "objective": "Return to specificity without stacking too much fatigue. Specific but controlled.",
+      "distanceKm": 29.0
+    },
+    {
+      "week": 10,
+      "day": "Mon",
+      "type": "easy",
+      "title": "8-10 km easy + maintenance Strength A",
+      "target": "Cap 160bpm",
+      "objective": "Final major rehearsal before taper. Last highly specific long run.",
+      "distanceKm": 9.0
+    },
+    {
+      "week": 10,
+      "day": "Tue",
+      "type": "interval",
+      "title": "6 x 800 m interval",
+      "target": "3:20-3:28/km, 2min recovery",
+      "objective": "Final major rehearsal before taper. Last highly specific long run."
+    },
+    {
+      "week": 10,
+      "day": "Wed",
+      "type": "easy",
+      "title": "12-14 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Final major rehearsal before taper. Last highly specific long run.",
+      "distanceKm": 13.0
+    },
+    {
+      "week": 10,
+      "day": "Thu",
+      "type": "marathon",
+      "title": "3 x 4 km at marathon pace",
+      "target": "3:47/km, 2-3min recovery",
+      "objective": "Final major rehearsal before taper. Last highly specific long run."
+    },
+    {
+      "week": 10,
+      "day": "Fri",
+      "type": "easy",
+      "title": "8 km easy + maintenance Strength B",
+      "target": "Cap 160bpm",
+      "objective": "Final major rehearsal before taper. Last highly specific long run.",
+      "distanceKm": 8.0
+    },
+    {
+      "week": 10,
+      "day": "Sat",
+      "type": "easy",
+      "title": "10 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Final major rehearsal before taper. Last highly specific long run.",
+      "distanceKm": 10.0
+    },
+    {
+      "week": 10,
+      "day": "Sun",
+      "type": "long",
+      "title": "24-26 km with last 6-8 km at marathon pace",
+      "target": "Easy 4:35-5:00/km, final 6-8km at 3:47/km — last highly specific long run",
+      "objective": "Final major rehearsal before taper. Last highly specific long run.",
+      "distanceKm": 25.0
+    },
+    {
+      "week": 11,
+      "day": "Mon",
+      "type": "easy",
+      "title": "8 km easy + light activation",
+      "target": "Cap 160bpm",
+      "objective": "Reduce fatigue while holding race rhythm. Taper begins.",
+      "distanceKm": 8.0
+    },
+    {
+      "week": 11,
+      "day": "Tue",
+      "type": "threshold",
+      "title": "5 x 1 km threshold to 10K effort",
+      "target": "3:28-3:40/km, full recovery between",
+      "objective": "Reduce fatigue while holding race rhythm. Taper begins."
+    },
+    {
+      "week": 11,
+      "day": "Wed",
+      "type": "easy",
+      "title": "10-12 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Reduce fatigue while holding race rhythm. Taper begins.",
+      "distanceKm": 11.0
+    },
+    {
+      "week": 11,
+      "day": "Thu",
+      "type": "marathon",
+      "title": "8-10 km including 5 km at marathon pace",
+      "target": "Easy 4:35-5:00/km, 5km block at 3:47/km",
+      "objective": "Reduce fatigue while holding race rhythm. Taper begins.",
+      "distanceKm": 9.0
+    },
+    {
+      "week": 11,
+      "day": "Fri",
+      "type": "easy",
+      "title": "8 km easy + light activation",
+      "target": "Cap 160bpm",
+      "objective": "Reduce fatigue while holding race rhythm. Taper begins.",
+      "distanceKm": 8.0
+    },
+    {
+      "week": 11,
+      "day": "Sat",
+      "type": "easy",
+      "title": "8 km easy + strides",
+      "target": "Cap 160bpm, strides at the very end only",
+      "objective": "Reduce fatigue while holding race rhythm. Taper begins.",
+      "distanceKm": 8.0
+    },
+    {
+      "week": 11,
+      "day": "Sun",
+      "type": "long",
+      "title": "18-20 km easy with a short marathon-pace finish",
+      "target": "Easy 4:35-5:00/km, final 2-3km at 3:47/km — taper begins",
+      "objective": "Reduce fatigue while holding race rhythm. Taper begins.",
+      "distanceKm": 19.0
+    },
+    {
+      "week": 12,
+      "day": "Mon",
+      "type": "easy",
+      "title": "8 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Arrive fresh and execute. Race day only.",
+      "distanceKm": 8.0
+    },
+    {
+      "week": 12,
+      "day": "Tue",
+      "type": "interval",
+      "title": "6-8 km easy + strides",
+      "target": "Cap 160bpm, light strides only",
+      "objective": "Arrive fresh and execute. Race day only."
+    },
+    {
+      "week": 12,
+      "day": "Wed",
+      "type": "marathon",
+      "title": "8 km including 3 km at marathon pace",
+      "target": "Easy 4:35-5:00/km, 3km at 3:47/km — last taste of race pace",
+      "objective": "Arrive fresh and execute. Race day only.",
+      "distanceKm": 8.0
+    },
+    {
+      "week": 12,
+      "day": "Thu",
+      "type": "easy",
+      "title": "6 km easy",
+      "target": "Cap 160bpm",
+      "objective": "Arrive fresh and execute. Race day only.",
+      "distanceKm": 6.0
+    },
+    {
+      "week": 12,
+      "day": "Fri",
+      "type": "recovery",
+      "title": "5-6 km shakeout",
+      "target": "Cap 145bpm — very easy, this is not a training stimulus",
+      "objective": "Arrive fresh and execute. Race day only.",
+      "distanceKm": 5.5
+    },
+    {
+      "week": 12,
+      "day": "Sat",
+      "type": "easy",
+      "title": "Rest or 20 min jog",
+      "target": "Rest day. Cap 145bpm if jogging",
+      "objective": "Arrive fresh and execute. Race day only."
+    },
+    {
+      "week": 12,
+      "day": "Sun",
+      "type": "long",
+      "title": "London Marathon",
+      "target": "Goal: 3:47/km · 2:40:00 · negative split when possible",
+      "objective": "Arrive fresh and execute. Race day only.",
+      "distanceKm": 42.195
+    }
+  ]
+}

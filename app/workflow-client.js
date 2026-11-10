@@ -16,10 +16,12 @@ function saveReview(){
     if(score===15&&activityId)throw Error('A matched run cannot be marked missed. Choose Modified, or cancel and remove the existing assessment first.');
     const before=metrics();
     const next={score,label:SCORE_LABEL[score],at:new Date().toISOString(),notes:document.getElementById('reviewNotes').value.trim(),...(activityId?{activityId}:{}),...(actualDistanceKm!=null?{actualDistanceKm:score===15?0:actualDistanceKm}:{}),...(time?{movingSeconds:BuildData.seconds(time)}:{}),...(rpe?{rpe:Number(rpe)}:{})};
+    const previousLinks=activityId?Object.entries(assessments).filter(([otherKey,value])=>otherKey!==key&&value.activityId===activityId):[];
+    for(const [otherKey]of previousLinks)delete assessments[otherKey];
     assessments[key]=next;
-    try{save()}catch(error){old?assessments[key]=old:delete assessments[key];throw error}
+    try{save()}catch(error){old?assessments[key]=old:delete assessments[key];for(const [otherKey,value]of previousLinks)assessments[otherKey]=value;throw error}
     const after=metrics(),delta=after.progress-before.progress;
-    closeSheet();notify(`Review saved · BUILD Progress ${after.progress}% (${delta>0?'+':''}${delta} points) · Forecast ${after.forecast==null?'building signal':`${after.forecast}%`}.`);
+    closeSheet();notify(`Review saved · BUILD Progress ${after.progress} / 100 (${delta>0?'+':''}${delta} points) · ${after.forecast==null?'Forecast gathering evidence':statusCopy(after).label}.`);
   }catch(error){notify(error.message)}
 }
 function downloadJSON(name,data){
@@ -33,11 +35,16 @@ function openWorkflow(title,content){
   document.body.appendChild(sheet);document.getElementById('cancelWorkflow').onclick=()=>sheet.remove();sheet.querySelector('input,button,select')?.focus();return sheet;
 }
 function previewPlan(candidate){
+  candidate=BuildData.plan(candidate);
+  const suggestions=BuildImportReview.suggestions(candidate);
+  const classificationReview=suggestions.length?`<section class="import-classifications" aria-label="Check workout types"><h3>Check ${suggestions.length} workout types</h3><p>Keep the supplied types, or choose changes below. Original types are retained in your backup. Titles, distances and instructions stay as supplied.</p>${suggestions.map((change,i)=>{const session=candidate.sessions[change.index];return `<label class="classification-choice"><input type="checkbox" data-import-change="${i}"><span><b>W${session.week} · ${escapeHTML(session.day)} · ${escapeHTML(session.title)}</b><small>${escapeHTML(typeName(change.original))} → ${escapeHTML(typeName(change.proposed))}</small><small>${escapeHTML(change.reason)}</small></span></label>`}).join('')}</section>`:'';
   const setup=!profile.onboarded?(state.setup||profile.setupDraft):null;
   const race=setup?.race||(candidate.race==='Marathon'?(plan.id==='london-239'?'':plan.race):candidate.race);
   const goal=setup?.goal??(candidate.goal==='Your race goal'?(plan.id==='london-239'?'':plan.goal):candidate.goal);
-  const raceDate=setup?.raceDate||candidate.raceDate||plan.raceDate||'';
-  const sheet=openWorkflow('Review your plan',`<p>${candidate.sessions.length} sessions. Check your dates before saving.</p><label class="field">Plan name<input id="importName" value="${escapeHTML(candidate.name)}"></label><label class="field">Marathon<input id="importRace" value="${escapeHTML(race)}"></label><label class="field">Goal time (optional)<input id="importGoal" placeholder="e.g. 3:30:00" value="${escapeHTML(goal==='No time goal'?'':goal)}"></label><label class="field">Marathon date<input id="importRaceDate" type="date" value="${escapeHTML(raceDate)}"></label><label class="field">Plan length (weeks)<input id="importWeeks" type="number" min="${Math.max(...candidate.sessions.map(s=>s.week))}" max="52" step="1" value="${candidate.weeks}"></label><label class="field">Plan start date<input id="importStart" type="date" value="${candidate.startDate||''}" ${raceDate?'readonly':''}></label><label class="schedule-override"><input id="manualPlanStart" type="checkbox" ${raceDate?'':'checked'}> Choose a different start date</label><p class="muted-copy" id="importSchedule" aria-live="polite"></p><section class="card" id="importWeekPreview"></section><p class="muted-copy">Saving replaces your plan and clears its reviews. Your runs stay available. Download a backup first to keep the current build.</p><button class="primary full" id="confirmPlan">Use this plan</button>`);
+  const raceDate=setup?.raceDate||candidate.raceDate||(plan.id==='london-239'?'':plan.raceDate)||'';
+  const sheet=openWorkflow('Review your plan',`<p>${candidate.sessions.length} sessions. Check your dates before saving.</p><label class="field">Plan name<input id="importName" value="${escapeHTML(candidate.name)}"></label><label class="field">Marathon<input id="importRace" value="${escapeHTML(race)}"></label><label class="field">Goal time (optional)<input id="importGoal" placeholder="e.g. 3:30:00" value="${escapeHTML(goal==='No time goal'?'':goal)}"></label><label class="field">Marathon date<input id="importRaceDate" type="date" value="${escapeHTML(raceDate)}"></label><label class="field">Plan length (weeks)<input id="importWeeks" type="number" min="${Math.max(...candidate.sessions.map(s=>s.week))}" max="52" step="1" value="${candidate.weeks}"></label><label class="field">Plan start date<input id="importStart" type="date" value="${candidate.startDate||''}" ${raceDate?'readonly':''}></label><label class="schedule-override"><input id="manualPlanStart" type="checkbox" ${raceDate?'':'checked'}> Choose a different start date</label><p class="muted-copy" id="importSchedule" aria-live="polite"></p>${classificationReview}<section class="card" id="importWeekPreview"></section><p class="muted-copy">Saving replaces your plan and clears its reviews. Your runs stay available. Download a backup first to keep the current build.</p><button class="primary full" id="confirmPlan">Use this plan</button>`);
+  // Only an explicitly imported start date opts out of automatic calculation.
+  document.getElementById('manualPlanStart').checked=!!candidate.startDate&&(!raceDate||candidate.startDate!==BuildCalendar.startForRace(raceDate,candidate.weeks));
   function refresh(){
     const weeks=Number(document.getElementById('importWeeks').value),date=document.getElementById('importRaceDate').value,manual=document.getElementById('manualPlanStart').checked;
     const start=document.getElementById('importStart');start.readOnly=!!date&&!manual;
@@ -45,10 +52,18 @@ function previewPlan(candidate){
       if(date&&!manual){start.value=BuildSetup.schedule(date,weeks).startDate;}
       document.getElementById('importSchedule').textContent=date&&!manual?`A ${weeks}-week build starts on ${start.value} and ends on race day, ${date}.`:date?'Using your chosen start date. Check that your final training week fits race day.':'Choose a race date to calculate the start automatically.';
       if(!Number.isInteger(weeks)||weeks<1||weeks>52)throw Error('Choose 1–52 whole weeks.');
-      document.getElementById('importWeekPreview').innerHTML=Array.from({length:weeks},(_,i)=>{const sessions=candidate.sessions.filter(s=>s.week===i+1),km=sessions.filter(s=>!['strength','cross'].includes(s.type)).reduce((n,s)=>n+(s.distanceKm||0),0);return `<details><summary>Week ${i+1} · ${sessions.length} sessions · ${km.toFixed(1)} km</summary>${sessions.map(s=>`<p>${escapeHTML(s.day)} · ${escapeHTML(s.title)}<br><small>${escapeHTML(s.target||'No target supplied')}</small></p>`).join('')||'<p>No sessions supplied.</p>'}</details>`}).join('');
+      document.getElementById('importWeekPreview').innerHTML=Array.from({length:weeks},(_,i)=>{const sessions=candidate.sessions.filter(s=>s.week===i+1),km=sessions.filter(s=>!['strength','cross','rest'].includes(s.type)).reduce((n,s)=>n+(s.distanceKm||0),0),partial=sessions.some(s=>!['strength','cross','rest'].includes(s.type)&&s.distanceKm==null),target=sessions.find(s=>s.weeklyTargetKm!=null)?.weeklyTargetKm;return `<details><summary>Week ${i+1} · ${sessions.length} entries · ${km.toFixed(1)} km ${partial?'specified (partial)':'specified'}${target!=null?' · '+target+' km weekly target':''}</summary>${sessions.map(s=>`<p>${escapeHTML(s.day)} · ${escapeHTML(s.title)}<br><small>${escapeHTML(typeName(s.type))+' · '+escapeHTML(s.target||'No target supplied')}${s.distanceKm==null?' · Distance not specified':''}</small></p>`).join('')||'<p>No sessions supplied.</p>'}</details>`}).join('');
     }catch(error){document.getElementById('importSchedule').textContent=error.message;}
   }
-  for(const id of ['importWeeks','importRaceDate','manualPlanStart'])document.getElementById(id).onchange=refresh;refresh();
+  for(const id of ['importWeeks','importRaceDate','manualPlanStart']){document.getElementById(id).onchange=refresh;document.getElementById(id).oninput=refresh;}
+  document.getElementById('importStart').oninput=()=>{if(!document.getElementById('importStart').readOnly)document.getElementById('manualPlanStart').checked=true;};refresh();
+  sheet.querySelectorAll('[data-import-change]').forEach(input=>input.onchange=()=>{
+    const change=suggestions[Number(input.dataset.importChange)],session=candidate.sessions[change.index];
+    session.type=input.checked?change.proposed:change.original;
+    if(input.checked){session.originalType=change.original;session.classificationNote=change.reason}
+    else{delete session.originalType;delete session.classificationNote}
+    refresh();
+  });
   document.getElementById('confirmPlan').onclick=()=>{
     try{
       const dates=document.getElementById('importRaceDate').value&&!document.getElementById('manualPlanStart').checked?BuildSetup.schedule(document.getElementById('importRaceDate').value,document.getElementById('importWeeks').value):{weeks:Number(document.getElementById('importWeeks').value),raceDate:document.getElementById('importRaceDate').value,startDate:document.getElementById('importStart').value};
@@ -94,9 +109,7 @@ function bindWorkflows(){
   bind('onboardCreate',()=>openPlanBuilder());
   bind('onboardGenerate',()=>openPlanGenerator());
   bind('onboardExample',()=>previewPlan({...structuredClone(defaultPlan),...(state.setup||profile.setupDraft||{})}));
-  const ip=document.getElementById('importPlan');if(ip)ip.textContent='Import a plan';
-  if(ip&&!document.getElementById('generatePlan')){const b=document.createElement('button');b.id='generatePlan';b.className='primary full';b.textContent='Make a plan for me';b.onclick=()=>openPlanGenerator();ip.after(b);}
-  if(ip&&!document.getElementById('createPlan')){const b=document.createElement('button');b.id='createPlan';b.className='secondary full';b.textContent='Enter my own sessions';b.onclick=()=>openPlanBuilder();document.getElementById('generatePlan').after(b);}
+  const ip=document.getElementById('importPlan');if(ip)ip.textContent=state.screen==='plan'?'Replace plan':'Import a plan';
   bind('exportBackup',()=>downloadJSON(`BUILD-backup-${new Date().toISOString().slice(0,10)}.json`,{format:'BUILD_BACKUP',version:1,exportedAt:new Date().toISOString(),plan,assessments,activities,profile}));
   bind('restoreBackup',()=>document.getElementById('backupFileInput').click());
 }

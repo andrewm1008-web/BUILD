@@ -1,0 +1,145 @@
+# BUILD v0.12.1
+
+## Version 0.11.0
+
+Date fields now explicitly override WebKit's intrinsic sizing and keep a 16px font within the mobile container. The organizer-sourced 2027 marathon selector fills race name and race date in onboarding, generated plans, imports, the manual editor and goal settings. It includes separate London Saturday/Sunday choices, Brighton, Manchester, Edinburgh, Barcelona, Rotterdam and Boston, with an Other option. Sources and verification date live in race-catalog.js; dates are curated, not fetched live.
+
+Long-run progression now uses an explicit endurance target, remaining load weeks, running frequency and optional easy pace. A regular 30 km/week / 10 km recent-long-run profile now reaches 28 km in a 16-week build, rather than 23 km. Established profiles include repeated 28–32 km runs and controlled marathon-effort finishes. Slower runners can receive an explicit time-on-feet target instead of an arbitrary distance requirement. Insufficient progression is rejected and a longer feasible build is suggested. New runners can use 28/32-week preparation when 24 weeks does not produce enough endurance. Limited-day schedules reduce volume rather than packing high mileage into a few oversized runs.
+
+These remain independent starting-plan rules, not validated adaptive coaching or a guarantee of readiness. Existing saved plans are not rewritten; generate and review a replacement to apply the revised progression. All 54 Node regression tests and the production build pass. Physical iPhone/Safari and browser interaction verification remain pending.
+
+## Version 0.10.0
+
+Next-session selection now sorts actual dates and skips past sessions, saved reviews and clear automatic matches. Undated plans also use weekday order. Progress insights use the same ordering, so an earlier Tuesday interval cannot be displaced by a Sunday long run solely because of array order.
+
+"Make a plan for me" is a guided generator, separate from the advanced manual session editor. It asks about recent weekly distance, longest run, experience, available days, long-run preference, race date and optional recent race performance. It makes a rules-based starting draft with easy running, recovery weeks, appropriate quality sessions and a taper. Newer runners can receive a 24-week run/walk foundation. It rejects schedules that start in the past, insufficient preparation windows, incompatible days and current injuries limiting running. Goal time does not set training intensity. Optional pace estimates are heuristics based on the recent result; effort takes priority.
+
+The structure was cross-checked against public [London Marathon beginner guidance](https://www.londonmarathonevents.co.uk/london-marathon/start-training) and [B.A.A. training guidance](https://www.baa.org/races/boston-marathon/info-for-athletes/boston-marathon-training/). These are independent BUILD rules, not copied or endorsed official plans. They have not been clinically or prospectively validated, are not an adaptive coaching service, and do not predict a finish time. Review and adjust the draft before use.
+
+All 46 Node regression tests and the production build pass. Browser interaction and physical iPhone verification remain pending.
+
+## Version 0.9.0
+
+First-time goals start blank. Runners enter their own marathon, marathon date and optional target time, then choose to import a plan or create their own. The plan editor supports week-by-week sessions, running and strength types, distances, target instructions, and copying sessions into an empty week. It does not generate a training prescription.
+
+The marathon date and plan length calculate the start date automatically. Imported plans show the race date, editable full plan length, computed start and a deliberate manual-start override before replacement. Existing plans, activities and reviews are untouched until the runner confirms the new plan. A target time is not a predicted finish time.
+
+All 37 Node regression tests and the production build pass. Browser interaction and physical iPhone verification remain pending.
+
+## Version 0.8.0
+
+The interface now uses dark graphite surfaces and restrained cyan accents across Today, Plan, Progress, Activity and Settings. Today leads with the scheduled session, latest run, planned-versus-actual comparison and one review action. Scores and forecast explanations live in Progress. Clear Strava matches appear automatically; scores still require an explicit review.
+
+Buttons highlight and enlarge slightly on devices with a mouse. Touch devices receive press feedback. Keyboard focus remains visible, and reduced-motion settings disable scaling. The existing plan, activity and review storage keys are unchanged.
+
+The 31 Node regression tests and static production build pass. Browser verification of this redesign is pending; the local browser action was blocked by automatic approval review.
+
+BUILD is a mobile-first marathon plan companion. Bring an existing plan, match completed runs, and review how well each session delivered its purpose.
+
+## Working app flows
+
+- Guided onboarding with CSV or JSON plan import, plus a clearly labelled example build.
+- Plan import validation and a preview before replacing the current plan. Invalid files leave the current build untouched.
+- Today, Plan, Progress, Activity and Settings screens in dark graphite and cyan.
+- Calendar-aware weeks and Sunday matching, with manual week selection for undated plans.
+- Activity CSV import with explicit distance units, a preview, non-running activity filtering and duplicate detection.
+- Manual run entry and optional distance, time, effort and notes in a session review.
+- Automatic Strava matching to dated planned sessions, with a full session selector for corrections. Clear same-day matches and close-distance runs shifted by one day appear on the plan immediately; ambiguous runs stay available for manual matching. Matching does not award an automatic score.
+- Explicit review saving, editable assessment history and assessment removal to correct a match.
+- Contribution-weighted progress with priority for long runs, marathon-specific work, intervals, then threshold and supporting sessions.
+- Forecast suppression until there is sufficient evidence. Forecast describes plan execution, not a predicted finish time or probability of a marathon goal.
+- Local persistence, validated JSON backup download and restore, and an offline PWA shell with install icons.
+- Strava OAuth and activity sync server routes, including pagination, token refresh, disconnect and non-cacheable responses. Live controls appear only when the backend reports it is configured.
+
+## Run locally
+
+Requires Node.js 20 or later. The app itself has no runtime npm dependencies.
+
+```sh
+npm start
+```
+
+Open `http://127.0.0.1:8765`. Local plan/CSV/manual workflows work without accounts or API keys. Live OAuth requires an HTTPS deployment and the environment variables below.
+
+## Plan import
+
+Use `sample-plan.csv` or `sample-plan.json` as a template. CSV requires Week, Day and Title. Optional columns include Type, Target, Distance Km and Objective. Supported types are long, marathon, interval, threshold, easy, recovery, strength and cross. Weeks must be whole numbers from 1 to 52. Sessions with the same week, day and title must be unique.
+
+The preview lets the runner set the plan name, race, goal and start date. A new plan clears its assessments and keeps imported activities for rematching. Download a backup to retain a previous build.
+
+## Activity import
+
+CSV supports Activity ID, Activity Name, Activity Type, Activity Date, Distance and Moving Time. Choose the export's distance unit in the preview: kilometres, miles or metres. Moving Time accepts seconds, `m:ss` or `h:mm:ss`. Existing activity IDs are preserved when importing an export again.
+
+## Data and privacy
+
+The plan, activities, profile and assessments live in this browser's local storage. Download a backup before clearing browser data, switching devices or replacing a build. Backups contain training data and notes; they contain no Strava access tokens. Cloud accounts and automatic cross-device sync are not implemented.
+
+## Deployment
+
+GitHub Pages can serve the static files for plan import, CSV/manual activity entry, reviews and backups. It cannot run the Strava server routes.
+
+For a Vercel deployment, import this repository with the Other framework preset. The checked-in `vercel.json` runs `npm run build`, publishes only the browser assets in `public/`, and bundles the API routes separately. Shared server code lives in `lib/`. Configure these server-only environment variables:
+
+- `STRAVA_CLIENT_ID`
+- `STRAVA_CLIENT_SECRET`
+- `BUILD_SESSION_SECRET` — an independent random secret of at least 32 characters
+
+Set the Strava application's authorization callback domain to the deployed BUILD host. `/api/health` reports configuration availability without exposing secrets. OAuth stores tokens in a sealed, Secure, HttpOnly cookie. API routes are excluded from the offline cache.
+
+A real OAuth connection and token-refresh cycle still need validation against the owner's Strava account. No paid services are required for the local app.
+
+## Verification
+
+```sh
+npm test
+```
+
+The regression suite covers dates, week navigation, volume, forecast suppression, import validation, explicit units, duplicate IDs, backup validation, offline asset coverage, OAuth state and cookies, token encryption, pagination, and API errors.
+
+For the mobile browser flow:
+
+```sh
+npm install
+npx playwright install chromium
+npm run test:browser
+```
+
+This checks onboarding, plan preview, failed-import preservation, manual runs, review cancellation and saving, progress, backup download/restore, CSV deduplication, goal editing and offline reload at a 390px mobile width. Screenshots are written to `/tmp` as verification artifacts. This is Chromium mobile emulation, not a physical iPhone/Safari certification.
+
+## Remaining production work
+
+- Connect and verify a real Strava account on the configured HTTPS deployment.
+- Add authenticated cloud storage if automatic cross-device continuity is required.
+- Analyse laps/streams for structured intervals and marathon-pace blocks; current comparisons use distance, average pace and the runner's review.
+- Validate on a physical iPhone before native App Store packaging.
+
+## Backend setup checkpoint
+
+A Vercel preview was requested at https://build-nclxj1u5j-andrewm1008-9034.vercel.app. Deployment inspection: https://vercel.com/andrewm1008-9034/build/FVh6c4Yjp5appkckP4YX3z5k5F9D. The connected app could create the preview but returned 403 for project/deployment inspection, so it has not been verified as ready.
+
+To enable live sync, use the BUILD project settings in Vercel to enter the three environment variables above for the intended deployment environment, then redeploy. Generate `BUILD_SESSION_SECRET` with a password manager (at least 32 random characters). Do not put any of these secrets in GitHub, the front-end app, or chat.
+
+Use the stable production hostname as the Strava authorization callback domain. `/api/health` must return `stravaConfigured: true` before the Connect Strava button appears. A real account connection is still required to validate provider access; mocked tests now cover token refresh, token rotation, revoked login, and malformed token responses.
+
+If moving from GitHub Pages to Vercel, download a backup from the old app and restore it on the new hostname. Browser-local data does not transfer across origins automatically.
+
+## Version 0.6.0
+
+Adds workout-specific review prompts, a Forecast evidence breakdown, complete weekly import previews, a simplified strength review and mobile accessibility refinements. Average pace does not automatically grade intervals or fast-finish blocks. Strength uses the same explicit review storage and backup system, without running-distance fields. Live Strava and physical iPhone verification remain pending.
+
+## Frontend language and design
+
+Version 0.7 follows BUILD_Project_Bible_v0.1: BUILD interprets the contribution of completed training to an imported marathon plan. Primary labels are Today's Build, Build Timeline, Build Progress, Build Forecast and Goal Confidence. Confidence describes evidence about the build, not race probability. Supporting sessions use Completed / Modified / Missed. The interface uses cream, navy and racing green, quieter surfaces, an editorial heading hierarchy and explicit empty states.
+
+## Version 0.12.0
+
+The curated 2027 marathon picker now adds ten European events and groups races by country. Each entry keeps its official organizer source; unannounced dates are omitted and any other race can be entered manually. Dates were checked on 12 October 2026.
+
+The generator offers Standard (existing defaults) and Extended long-run approaches. Extended requires experienced status, at least 50 km/week over the last four weeks, a recent 18 km run, five running days, a build of at least 16 weeks and easy pace or recent-race information. It aims for 35 km, requires an achieved peak of at least 34 km, and limits predicted duration to 210 minutes. Larger peak runs remain easy; weekly progression, cutbacks and the three-week taper remain in place. These are transparent product heuristics, not validated personalized coaching; a goal time alone never unlocks the option. Existing plans are unchanged until the runner confirms a replacement draft.
+
+Training context: the [B.A.A. training overview](https://www.baa.org/races/boston-marathon/info-for-athletes/boston-marathon-training/) describes advanced long runs of 20–22 miles alongside substantial mileage. BUILD does not reproduce those plans.
+
+## Version 0.12.1
+
+All next-run references now use one chronological selector, including coaching text that previously preferred a later key workout. The Today card shows the exact scheduled date (or week/day for undated plans), never substitutes strength/cross-training for a run, and refreshes when the phone returns to the app after a date change. Reviewed and automatically matched runs stay excluded.

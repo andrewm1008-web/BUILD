@@ -20,12 +20,12 @@ const BuildCalendar = (() => {
     const startWeekday = (new Date(start * DAY_MS).getUTCDay() + 6) % 7;
     return iso(start + (session.week - 1) * 7 + (offset - startWeekday + 7) % 7);
   }
-  function currentWeek(plan, date = today()) {
+  function currentWeek(plan, date = BuildCalendar.today()) {
     const start = dayNumber(plan.startDate), now = dayNumber(date);
     const week = start == null || now == null ? Number(plan.currentWeek) || 1 : Math.floor((now - start) / 7) + 1;
     return Math.max(1, Math.min(Number(plan.weeks) || 12, week));
   }
-  function isDue(plan, session, date = today()) {
+  function isDue(plan, session, date = BuildCalendar.today()) {
     const scheduled = sessionDate(plan, session);
     return scheduled ? scheduled <= date : session.week < currentWeek(plan, date);
   }
@@ -33,7 +33,7 @@ const BuildCalendar = (() => {
     const race = dayNumber(raceDate);
     return race == null ? null : iso(race - ((Number(weeks) || 12) * 7 - 1));
   }
-  function upcoming(plan,date=today()){
+  function upcoming(plan,date=BuildCalendar.today()){
     const week=currentWeek(plan,date),now=dayNumber(date),weekday=now==null?0:(new Date(now*DAY_MS).getUTCDay()+6)%7;
     return plan.sessions.filter(s=>{const scheduled=sessionDate(plan,s);return scheduled?scheduled>=date:s.week>week||(s.week===week&&weekdays[s.day]>=weekday)}).sort((a,b)=>{
       const da=sessionDate(plan,a),db=sessionDate(plan,b);

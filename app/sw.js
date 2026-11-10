@@ -1,8 +1,10 @@
-const CACHE='build-v0.12.1';
-const ASSETS=['./','./index.html','./styles.css','./extras.css','./calendar.js','./data.js','./workflow-client.js','./icon.svg','./icon-192.png','./icon-512.png','./sample-plan.csv','./app.js','./migration-client.js','./engine-v2.js','./profile-client.js','./plan-import-client.js','./insights-client.js','./strava-client.js','./manifest.webmanifest'];
-ASSETS.push('./setup.js','./plan-builder-client.js');
+const CACHE='build-v0.17.0-preview';
+const ASSETS=['./build-sans.woff2','./connection-client.js','./design-client.js','./design.css','./','./index.html','./calendar.js','./data.js','./workflow-client.js','./icon.svg','./icon-192.png','./icon-512.png','./sample-plan.csv','./app.js','./migration-client.js','./engine-v2.js','./profile-client.js','./plan-import-client.js','./insights-client.js','./manifest.webmanifest'];
+ASSETS.push('./setup.js','./plan-builder-client.js','./evidence-client.js');
 ASSETS.push('./plan-generator.js','./plan-generator-client.js');
 ASSETS.push('./race-catalog.js','./race-picker-client.js');
+ASSETS.push('./import-review.js','./session-evidence.js');
+ASSETS.push('./appearance.js','./simulator-client.js');
 const ASSET_URLS=new Set(ASSETS.map(path=>new URL(path,self.registration.scope).href));
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));

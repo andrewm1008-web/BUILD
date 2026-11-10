@@ -3,9 +3,9 @@
   "short_name": "BUILD",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#090d12",
-  "theme_color": "#090d12",
-  "description": "Your marathon plan and completed training, together.",
+  "background_color": "#080d12",
+  "theme_color": "#080d12",
+  "description": "Track progress against your imported marathon plan.",
   "id": "./",
   "scope": "./",
   "icons": [

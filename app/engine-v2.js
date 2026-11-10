@@ -1,7 +1,7 @@
 (()=>{
   const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
   const recencyWeight=week=>Math.pow(.90,Math.max(0,BuildCalendar.currentWeek(plan)-week));
-  const dueSessions=()=>plan.sessions.filter(s=>BuildCalendar.isDue(plan,s) || (s.week<=BuildCalendar.currentWeek(plan) && assessed(s)));
+  const dueSessions=()=>plan.sessions.filter(s=>impact(s)>0&&(BuildCalendar.isDue(plan,s) || (s.week<=BuildCalendar.currentWeek(plan) && assessed(s))));
   const weightedAverage=(items,valueFn,weightFn)=>{let num=0,den=0;for(const item of items){const v=valueFn(item),w=weightFn(item);if(Number.isFinite(v)&&w>0){num+=v*w;den+=w}}return den?num/den:null};
 
   metrics=function(){
@@ -38,7 +38,9 @@
       forecast=Math.round(clamp(base+trend-missedPenalty*.4,0,100));
     }
 
-    return {progress,quality,forecast,confidence,coverage,assessedCount:known.length,dueCount:due.length,recentAvg,confidenceScore,keyEvidence,missedPenalty};
+    const totalWeight=known.reduce((sum,s)=>sum+impact(s)*recencyWeight(s.week),0);
+    const evidenceRows=due.map(s=>({key:skey(s),score:assessed(s)?.score??null,impact:impact(s),recency:recencyWeight(s.week),share:assessed(s)&&totalWeight?impact(s)*recencyWeight(s.week)/totalWeight:0}));
+    return {progress,quality,forecast,confidence,coverage,assessedCount:known.length,dueCount:due.length,recentAvg,confidenceScore,keyEvidence,missedPenalty,execution,evidenceRows};
   };
 
   statusCopy=function(m){

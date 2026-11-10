@@ -2,6 +2,11 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
 const ctx=vm.createContext({Date});vm.runInContext(fs.readFileSync('data.js','utf8'),ctx);const data=vm.runInContext('BuildData',ctx);
 const session={week:1,day:'Sun',type:'long',title:'Long run',distanceKm:24};
+test('extended plan CSV preserves types, camelCase distances, blank totals and coach context',()=>{
+ const source='week,day,type,distanceKm,title,details,pace,phase,weeklyTargetKm,weekGoal,weekFocus\n1,Monday,steady,12,Steady run,Controlled aerobic,4:15/km,Build,82,Consistency,Long run\n1,Tuesday,interval,,6 x 1 km,90s jog,10K effort,Build,82,Consistency,Long run\n1,Saturday,rest,,Rest or jog,Optional,Easy,Taper,40,Freshness,Recovery\n1,Sunday,race,42.195,Marathon,Race day,Goal pace,Taper,40,Freshness,Recovery';
+ const p=data.planCSV(source);assert.equal(p.sessions[0].type,'steady');assert.equal(p.sessions[0].distanceKm,12);assert.equal(p.sessions[1].distanceKm,undefined);assert.equal(p.sessions[1].target,'90s jog · 10K effort');assert.equal(p.sessions[2].type,'rest');assert.equal(p.sessions[3].type,'race');assert.equal(p.sessions[0].weeklyTargetKm,82);
+ const restored=data.backup({format:'BUILD_BACKUP',version:1,plan:p,activities:[],assessments:{},profile:{onboarded:true}});assert.equal(restored.plan.sessions[0].phase,'Build');assert.equal(restored.plan.sessions[0].weekGoal,'Consistency');assert.equal(restored.plan.sessions[0].weekFocus,'Long run');assert.equal(restored.plan.sessions[3].distanceKm,42.195);
+});
 test('sample CSV and JSON plans import with correct ordering and types',()=>{
  const csv=data.planCSV(fs.readFileSync('sample-plan.csv','utf8'));assert.equal(csv.sessions.length,6);assert.equal(csv.sessions[0].type,'interval');assert.equal(csv.sessions[2].day,'Sun');
  const json=data.plan(JSON.parse(fs.readFileSync('sample-plan.json','utf8')));assert.equal(json.sessions.length,3);assert.equal(json.weeks,12);
@@ -32,4 +37,10 @@ test('backup validates links and round-trips plan, activities and optional revie
  const source={format:'BUILD_BACKUP',version:1,plan:{weeks:12,sessions:[session]},activities:[{id:'1',name:'Run',distanceKm:23.5,movingSeconds:7200,date:'2027-02-07'}],assessments:{'1|Sun|Long run':{score:84,activityId:'1',actualDistanceKm:23.5,rpe:7,notes:'Controlled'}},profile:{name:'Andy'}};
  const restored=data.backup(JSON.parse(JSON.stringify(source)));assert.equal(restored.assessments['1|Sun|Long run'].notes,'Controlled');assert.equal(restored.activities[0].distanceKm,23.5);assert.equal(restored.profile.name,'Andy');
  source.assessments['1|Sun|Long run'].activityId='missing';assert.throws(()=>data.backup(source));
+});
+
+test('activity CSV keeps the exported local calendar day regardless of time zone',()=>{
+ const csv='Activity ID,Activity Date,Activity Name,Activity Type,Distance,Moving Time\n1,"Jan 6, 2026, 11:30:00 PM",Evening,Run,10,3000\n2,"6 Jan 2026, 00:20:00",Early,Run,10,3000\n3,2026-01-07T06:00:00Z,Iso,Run,10,3000';
+ const days=data.activitiesCSV(csv).activities.map(a=>a.date);
+ assert.equal(days.join(),'2026-01-06,2026-01-06,2026-01-07');
 });

@@ -1,18 +1,12 @@
 {
-  "name": "build-marathon",
-  "version": "0.12.1",
+  "name": "build-marathon-private",
   "private": true,
-  "description": "BUILD interprets a marathon plan against completed training.",
-  "engines": {
-    "node": ">=20"
-  },
+  "type": "module",
   "scripts": {
-    "test": "node --test tests/*.test.cjs",
-    "start": "node dev-server.cjs",
-    "test:browser": "node tests/browser.cjs",
-    "build": "node scripts/build.cjs"
+    "build": "node scripts/build-all.mjs",
+    "test": "node --test tests/*.test.mjs"
   },
   "devDependencies": {
-    "playwright": "1.62.1"
+    "linkedom": "0.18.12"
   }
 }

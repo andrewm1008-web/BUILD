@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#090d0f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="BUILD" />
+  <meta name="description" content="BUILD interprets your marathon plan and completed training so you know whether the build is moving toward race day." />
+  <title>BUILD — Marathon Progress</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="preload" href="build-sans.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="design.css" />
+  <script src="appearance.js"></script>
+</head>
+<body>
+  <div class="preview-workspace">
+    <aside class="preview-controls" aria-label="Preview controls">
+      <a class="preview-brand" href="#">BUILD<span>iPhone preview</span></a>
+      <p class="preview-description">Interactive web preview of the native design.</p>
+      <div class="preview-setting"><span>Appearance</span><div class="preview-segment" role="group" aria-label="Appearance"><button data-theme="light">Light</button><button data-theme="dark">Dark</button><button data-theme="system">Auto</button></div></div>
+      <div class="preview-setting"><label for="previewSize">Screen width</label><select id="previewSize"><option value="390">390 pt</option><option value="430">430 pt</option></select></div>
+      <div class="preview-screens" aria-label="Preview screens"><button data-preview-screen="today">Home<span>01</span></button><button data-preview-screen="plan">Plan<span>02</span></button><button data-preview-screen="inbox">Review<span>03</span></button><button data-preview-screen="progress">Progress<span>04</span></button><button data-preview-screen="settings">Settings<span>05</span></button></div>
+      <p class="preview-note">Web-rendered controls. Native Liquid Glass is available in the SwiftUI app.</p>
+    </aside>
+    <div class="device-wrap"><div class="phone-device"><div class="phone-screen">
+      <div class="phone-status" aria-hidden="true"><span>9:41</span><span class="dynamic-island"></span><span class="phone-signals">▮▮▮ <i></i></span></div>
+      <div class="phone-scroll"><div id="app" class="app-shell"></div></div>
+      <div class="home-indicator" aria-hidden="true"></div>
+    </div></div></div>
+  </div>
+  <div id="notice" role="status" aria-live="polite"></div>
+  <input id="backupFileInput" type="file" accept="application/json,.json" hidden />
+  <input id="planFileInput" type="file" accept="application/json,.json" hidden />
+  <input id="planCsvFileInput" type="file" accept="text/csv,.csv" hidden />
+  <input id="activityFileInput" type="file" accept="text/csv,.csv" hidden />
+  <script src="calendar.js"></script>
+  <script src="data.js"></script>
+  <script src="import-review.js"></script>
+  <script src="session-evidence.js"></script>
+  <script src="setup.js"></script>
+  <script src="race-catalog.js"></script>
+  <script src="plan-generator.js"></script>
+  <script src="app.js"></script>
+  <script src="migration-client.js"></script>
+  <script src="engine-v2.js"></script>
+  <script src="profile-client.js"></script>
+  <script src="plan-import-client.js"></script>
+  <script src="workflow-client.js"></script>
+  <script src="plan-builder-client.js"></script>
+  <script src="plan-generator-client.js"></script>
+  <script src="insights-client.js"></script>
+  <script src="race-picker-client.js"></script>
+
+  <script src="design-client.js"></script>
+  <script src="evidence-client.js"></script>
+  <script src="connection-client.js"></script>
+  <script src="simulator-client.js"></script>
+</body>
+</html>

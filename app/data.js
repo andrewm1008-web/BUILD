@@ -21,6 +21,7 @@ const BuildData = (() => {
   const pick=(r,names)=>{for(const key of names)if(r[key]!=null&&r[key]!=='')return r[key];return ''};
   function type(value){
     const t=text(value,'easy').toLowerCase();
+    if(['steady','race','rest'].includes(t))return t;
     if(/long/.test(t))return 'long';if(/marathon|\bmp\b/.test(t))return 'marathon';
     if(/threshold|tempo/.test(t))return 'threshold';if(/interval|speed|track/.test(t))return 'interval';
     if(/strength|gym/.test(t))return 'strength';if(/recovery/.test(t))return 'recovery';
@@ -40,14 +41,14 @@ const BuildData = (() => {
       const day=days.find(d=>d.toLowerCase()===text(s.day).slice(0,3).toLowerCase());if(!day)throw Error(`Session ${i+1} needs a valid weekday.`);
       const title=text(s.title);if(!title||title.length>240)throw Error(`Session ${i+1} needs a title under 240 characters.`);
       const key=`${week}|${day}|${title}`;if(keys.has(key))throw Error(`Duplicate session: week ${week}, ${day}, ${title}.`);keys.add(key);
-      return {week,day,title,type:type(s.type),target:text(s.target,'As prescribed'),objective:text(s.objective,'Contribute to the marathon build.'),...(s.distanceKm!=null&&s.distanceKm!==''?{distanceKm:finite(s.distanceKm,0,300,'Distance in km')}:{})};
+      return {week,day,title,type:type(s.type),target:text(s.target,'As prescribed'),objective:text(s.objective,'Contribute to the marathon build.'),...(s.distanceKm!=null&&s.distanceKm!==''?{distanceKm:finite(s.distanceKm,0,300,'Distance in km')}:{}),...Object.fromEntries(['details','pace','phase','weekGoal','weekFocus','originalType','classificationNote'].filter(k=>text(s[k])).map(k=>[k,text(s[k])])),...(s.weeklyTargetKm!=null&&s.weeklyTargetKm!==''?{weeklyTargetKm:finite(s.weeklyTargetKm,0,1000,'Weekly target km')}:{})};
     }).sort((a,b)=>a.week-b.week||days.indexOf(a.day)-days.indexOf(b.day));
     const maxWeek=Math.max(...sessions.map(s=>s.week));
     const weeks=finite(input.weeks||maxWeek,maxWeek,52,'Plan length');if(!Number.isInteger(weeks))throw Error('Plan length must be a whole number.');
     const currentWeek=finite(input.currentWeek||1,1,weeks,'Current week');if(!Number.isInteger(currentWeek))throw Error('Current week must be a whole number.');
     return {id:text(input.id,`import-${Date.now()}`),name:text(input.name,'Imported Marathon Build'),race:text(input.race,'Marathon'),goal:text(input.goal,'Your race goal'),weeks,currentWeek,startDate:date(input.startDate,'Start date'),raceDate:date(input.raceDate,'Race date'),sessions};
   }
-  function planCSV(source){return plan({sessions:csv(source).map(r=>({week:pick(r,['week','wk']),day:pick(r,['day','weekday']),title:pick(r,['title','session','workout','workout name']),type:pick(r,['type','session type','workout type'])||'easy',target:pick(r,['target','pace','details','description'])||'As prescribed',distanceKm:pick(r,['distance km','distance_km','distance','km']),objective:pick(r,['objective','purpose','why it matters'])||'Contribute to the marathon build.'}))})}
+  function planCSV(source){return plan({sessions:csv(source).map(r=>({week:pick(r,['week','wk']),day:pick(r,['day','weekday']),title:pick(r,['title','session','workout','workout name']),type:pick(r,['type','session type','workout type'])||'easy',target:pick(r,['target'])||[...new Set([pick(r,['details','description']),pick(r,['pace'])].filter(Boolean))].join(' · ')||'As prescribed',distanceKm:pick(r,['distancekm','distance km','distance_km','distance','km']),objective:pick(r,['objective','purpose','why it matters'])||'Contribute to the marathon build.',details:pick(r,['details','description']),pace:pick(r,['pace']),phase:pick(r,['phase']),weeklyTargetKm:pick(r,['weeklytargetkm','weekly target km','weekly_target_km']),weekGoal:pick(r,['weekgoal','week goal','week_goal']),weekFocus:pick(r,['weekfocus','week focus','week_focus'])}))})}
   function seconds(value){
     if(value==null||value==='')return undefined;
     if(String(value).includes(':')){
@@ -69,7 +70,7 @@ const BuildData = (() => {
       const distance=pick(r,['distance','distance km','distance_km']);
       if(distance==='')throw Error(`Activity row ${i+2} needs a distance.`);
       let day=pick(r,['activity date','date','start date']);
-      if(day){const d=new Date(day);if(!Number.isFinite(+d))throw Error(`Activity row ${i+2} has an invalid date.`);day=/^\d{4}-\d{2}-\d{2}/.test(day)?day.slice(0,10):d.toISOString().slice(0,10)}
+      if(day){/* Strava exports local wall-clock text: read it in local time, not via UTC, or evening/early runs shift a day. */const d=new Date(day);if(!Number.isFinite(+d))throw Error(`Activity row ${i+2} has an invalid date.`);day=/^\d{4}-\d{2}-\d{2}/.test(day)?day.slice(0,10):`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
       const name=pick(r,['activity name','name'])||'Run',moving=seconds(pick(r,['moving time','moving seconds','elapsed time']))||0;
       const km=finite(distance,0,300000,'Export distance')*multiplier;
       const id=pick(r,['activity id','id'])||`csv-${day}-${km}-${moving}-${name}`;
