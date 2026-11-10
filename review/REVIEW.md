@@ -17,7 +17,7 @@ Patch: `build-v7-fix.patch` (apply inside `BUILD/app` with `git apply`). Nothing
 - No horizontal overflow at 375px on Home, Plan, Review or Progress.
 
 ## Open issues (not changed)
-1. **Importing a plan deletes every review** (`workflow-client.js`, `confirmPlan`: `assessments={}`). Only a text warning guards it. Suggest keeping reviews whose `week|day|title` key survives, or forcing a backup first.
+1. **(Fixed in a later commit.)** Importing a plan used to delete every review; it now keeps reviews whose `week|day|title` still exists. Original note: **Importing a plan deletes every review** (`workflow-client.js`, `confirmPlan`: `assessments={}`). Only a text warning guards it. Suggest keeping reviews whose `week|day|title` key survives, or forcing a backup first.
 2. **Scope drift.** The plan builder, plan generator and race picker (`plan-generator*.js`, `race-picker-client.js`, "Make a plan for me") conflict with the handover scope.
 3. **Fragile load order.** `render()` runs many times at load, and `sessionSheet` is wrapped 4 times across files. `openQuickMatch` in `workflow-client.js` is dead (overridden at `design-client.js:44`). `strava-client.js`, `analysis-client.js`, `styles.css` and `extras.css` are not loaded.
 4. `worker/routes.js` `/api/health` reports version `0.13.0`.
