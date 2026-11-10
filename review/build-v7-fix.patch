@@ -1,0 +1,27 @@
+diff --git a/data.js b/data.js
+index b137cbc..a5bd47d 100644
+--- a/data.js
++++ b/data.js
+@@ -70,7 +70,7 @@ const BuildData = (() => {
+       const distance=pick(r,['distance','distance km','distance_km']);
+       if(distance==='')throw Error(`Activity row ${i+2} needs a distance.`);
+       let day=pick(r,['activity date','date','start date']);
+-      if(day){const d=new Date(day);if(!Number.isFinite(+d))throw Error(`Activity row ${i+2} has an invalid date.`);day=/^\d{4}-\d{2}-\d{2}/.test(day)?day.slice(0,10):d.toISOString().slice(0,10)}
++      if(day){/* Strava exports local wall-clock text: read it in local time, not via UTC, or evening/early runs shift a day. */const d=new Date(day);if(!Number.isFinite(+d))throw Error(`Activity row ${i+2} has an invalid date.`);day=/^\d{4}-\d{2}-\d{2}/.test(day)?day.slice(0,10):`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+       const name=pick(r,['activity name','name'])||'Run',moving=seconds(pick(r,['moving time','moving seconds','elapsed time']))||0;
+       const km=finite(distance,0,300000,'Export distance')*multiplier;
+       const id=pick(r,['activity id','id'])||`csv-${day}-${km}-${moving}-${name}`;
+diff --git a/tests/imports.test.cjs b/tests/imports.test.cjs
+index 43cda89..49e0195 100644
+--- a/tests/imports.test.cjs
++++ b/tests/imports.test.cjs
+@@ -38,3 +38,9 @@ test('backup validates links and round-trips plan, activities and optional revie
+  const restored=data.backup(JSON.parse(JSON.stringify(source)));assert.equal(restored.assessments['1|Sun|Long run'].notes,'Controlled');assert.equal(restored.activities[0].distanceKm,23.5);assert.equal(restored.profile.name,'Andy');
+  source.assessments['1|Sun|Long run'].activityId='missing';assert.throws(()=>data.backup(source));
+ });
++
++test('activity CSV keeps the exported local calendar day regardless of time zone',()=>{
++ const csv='Activity ID,Activity Date,Activity Name,Activity Type,Distance,Moving Time\n1,"Jan 6, 2026, 11:30:00 PM",Evening,Run,10,3000\n2,"6 Jan 2026, 00:20:00",Early,Run,10,3000\n3,2026-01-07T06:00:00Z,Iso,Run,10,3000';
++ const days=data.activitiesCSV(csv).activities.map(a=>a.date);
++ assert.equal(days.join(),'2026-01-06,2026-01-06,2026-01-07');
++});
